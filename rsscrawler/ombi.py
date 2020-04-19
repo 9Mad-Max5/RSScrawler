@@ -196,10 +196,10 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if len(e) == 1:
                                     e = "0" + e
                                 se = s + "E" + e
-                                if not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
-                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
-                                    db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
-                                    eps.append(enr)
+                                if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
+                                   db.delete('tvdb_' + str(tvdbid) + '_' + se)
+                                   db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                   eps.append(enr)
                                     
                             elif bool(episode.get("available")):
                                 enr = episode.get("episodeNumber")
