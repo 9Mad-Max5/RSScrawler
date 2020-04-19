@@ -197,7 +197,24 @@ def ombi(configfile, dbfile, device, log_debug):
                                     e = "0" + e
                                 se = s + "E" + e
                                 if not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
+                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
+                                    db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
                                     eps.append(enr)
+                                    
+                            elif bool(episode.get("available")):
+                                enr = episode.get("episodeNumber")
+                                s = str(sn)
+                                if len(s) == 1:
+                                    s = "0" + s
+                                s = "S" + s
+                                e = str(enr)
+                                if len(e) == 1:
+                                    e = "0" + e
+                                se = s + "E" + e
+                                if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
+                                   db.delete('tvdb_' + str(tvdbid) + '_' + se)
+                                   db.store('tvdb_' + str(tvdbid) + '_' + se, 'available')
+                                    
                         if eps:
                             if not infos:
                                 infos = tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug)
@@ -229,12 +246,14 @@ def ombi(configfile, dbfile, device, log_debug):
                                                         if len(e) == 1:
                                                             e = "0" + e
                                                         se = s + "E" + e
-                                                        db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
+                                                        #Müsste es hier nach dem selben Stil search oder available sein?
+                                                        #Search soll immer bedeuten das es noch offen ist.
+                                                        db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
                                                     if not add_season:
                                                         log_debug(
                                                             u"Konnte kein Release für " + title + " " + se + "finden.")
                                                     break
-                                            db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
+                                            db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
                                     else:
                                         best_result = search.best_result_sj(title, configfile, dbfile)
                                         if best_result:
@@ -244,7 +263,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                             if len(e) == 1:
                                                 e = "0" + e
                                             se = s + "E" + e
-                                            db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
+                                            db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
                                     print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
 
     return device
