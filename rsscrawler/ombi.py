@@ -182,8 +182,7 @@ def ombi(configfile, dbfile, device, log_debug):
                     db.store('tmdb_' + str(tmdbid), 'available')
                     
                 tmdbtit = r.get("title")
-                if list.retrieve(str(tmdbtit)):
-                    list.delete(str(tmdbtit))
+                list.delete(str(tmdbtit))
 
     for r in requested_shows:
         tvdbid = r.get("tvDbId")
