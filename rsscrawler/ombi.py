@@ -178,7 +178,7 @@ def ombi(configfile, dbfile, device, log_debug):
                 if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
                     db.delete('tmdb_' + str(tmdbid), 'added')
                     db.store('tmdb_' + str(tmdbid), 'available')
-                else
+                else:
                     db.store('tmdb_' + str(tmdbid), 'available')
                     
                 tmdbtit = r.get("title")
