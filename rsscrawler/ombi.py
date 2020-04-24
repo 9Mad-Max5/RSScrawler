@@ -124,6 +124,7 @@ def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug):
 
 def ombi(configfile, dbfile, device, log_debug):
     db = RssDb(dbfile, 'Ombi')
+    list = RssDb(dbfile, 'MB_Filme')
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
     api = config.get('api')
@@ -158,7 +159,7 @@ def ombi(configfile, dbfile, device, log_debug):
         if bool(r.get("approved")):
             if not bool(r.get("available")):
                 tmdbid = r.get("theMovieDbId")
-                if not db.retrieve('tmdb_' + str(tmdbid)) == 'added':
+                if not db.retrieve('tmdb_' + str(tmdbid)) == 'search':
                     title = mdb(configfile, dbfile, tmdbid, mdb_api, log_debug)
                     if title:
                         best_result = search.best_result_bl(title, configfile, dbfile)
@@ -171,7 +172,18 @@ def ombi(configfile, dbfile, device, log_debug):
                             print(u"Film: " + title + u"durch Ombi hinzugefügt.")
                             if best_result:
                                 search.download_bl(best_result, device, configfile, dbfile)
-                        db.store('tmdb_' + str(tmdbid), 'added')
+                        db.store('tmdb_' + str(tmdbid), 'search')
+            elif bool(r.get("available")):
+                tmdbid = r.get("theMovieDbId")
+                if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
+                    db.delete('tmdb_' + str(tmdbid), 'added')
+                    db.store('tmdb_' + str(tmdbid), 'available')
+                else
+                    db.store('tmdb_' + str(tmdbid), 'available')
+                    
+                tmdbtit = r.get("title")
+                if list.retrieve(str(tmdbtit)):
+                    list.delete(str(tmdbtit))
 
     for r in requested_shows:
         tvdbid = r.get("tvDbId")
@@ -214,6 +226,9 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
                                    db.store('tvdb_' + str(tvdbid) + '_' + se, 'available')
+                                   
+                                else
+                                    db.store('tvdb_' + str(tvdbid) + '_' + se, 'available')
                                     
                         if eps:
                             if not infos:
