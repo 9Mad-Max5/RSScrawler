@@ -176,7 +176,7 @@ def ombi(configfile, dbfile, device, log_debug):
             elif bool(r.get("available")):
                 tmdbid = r.get("theMovieDbId")
                 if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
-                    db.delete('tmdb_' + str(tmdbid), 'added')
+                    db.delete('tmdb_' + str(tmdbid))
                     db.store('tmdb_' + str(tmdbid), 'available')
                 else:
                     db.store('tmdb_' + str(tmdbid), 'available')
