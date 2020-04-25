@@ -226,7 +226,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
                                    db.store('tvdb_' + str(tvdbid) + '_' + se, 'available')
                                    
-                                else:
+                                elif not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'available':
                                     db.store('tvdb_' + str(tvdbid) + '_' + se, 'available')
                                     
                         if eps:
