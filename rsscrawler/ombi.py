@@ -159,7 +159,10 @@ def ombi(configfile, dbfile, device, log_debug):
         if bool(r.get("approved")):
             if not bool(r.get("available")):
                 tmdbid = r.get("theMovieDbId")
-                if not db.retrieve('tmdb_' + str(tmdbid)) == 'search' or not db.retrieve('tmdb_' + str(tmdbid)) == 'added':
+                if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
+                    db.delete('tmdb_' + str(tmdbid))
+                    db.store('tmdb_' + str(tmdbid), 'search')
+                elif not db.retrieve('tmdb_' + str(tmdbid)) == 'search':
                     title = mdb(configfile, dbfile, tmdbid, mdb_api, log_debug)
                     if title:
                         best_result = search.best_result_bl(title, configfile, dbfile)
@@ -173,10 +176,6 @@ def ombi(configfile, dbfile, device, log_debug):
                             if best_result:
                                 search.download_bl(best_result, device, configfile, dbfile)
                         db.store('tmdb_' + str(tmdbid), 'search')
-                elif db.retrieve('tmdb_' + str(tmdbid)) == 'added':
-                    db.delete('tmdb_' + str(tmdbid))
-                    db.store('tmdb_' + str(tmdbid), 'search')
-                    
             elif bool(r.get("available")):
                 tmdbid = r.get("theMovieDbId")
                 if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
