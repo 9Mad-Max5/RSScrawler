@@ -183,12 +183,13 @@ def ombi(configfile, dbfile, device, log_debug):
                     db.store('tmdb_' + str(tmdbid), 'available')
                 elif not db.retrieve('tmdb_' + str(tmdbid)) == 'available':
                     db.store('tmdb_' + str(tmdbid), 'available')
-                    
+                
                 tmdbtit = r.get("title")
                 tmdbtitp = tmdbtit.replace(':', '')
-                tmdbtitpp = tmdbtitp.replace('-', '')
-                print(u"Film " + tmdbtitpp + u" soll aus dem linkgraber entfernt werden.")
-                list.delete(str(tmdbtitpp))
+                tmdbtitpp = tmdbtitp.replace(' -', '')
+                if list.self(str(tmdbtitpp)):
+                    print(u"Film " + tmdbtitpp + u" soll aus dem linkgraber entfernt werden.")
+                    list.delete(str(tmdbtitpp))
 
     for r in requested_shows:
         tvdbid = r.get("tvDbId")
