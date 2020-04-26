@@ -192,10 +192,10 @@ def ombi(configfile, dbfile, device, log_debug):
                         
                 elif db.retrieve('tmdb_' + str(tmdbid)) == 'search':
                     tmdbtitc = tmdbtitpp.replace(' ', '.')
-                    tmdbtitc = tmdbtitc + '%'
-                    if log.retrieve(str(tmdbtitc)) == 'added':
-                        log.delete(str(tmdbtitc))
-                        print(u"Film " + tmdbtitc + u" aus dem log entfernt.")
+                    tmdbtitc += '%'
+                    #if log.retrieve(str(tmdbtitc)) == 'added':
+                    log.delete(str(tmdbtitc))
+                    print(u"Film " + tmdbtitc + u" aus dem log entfernt.")
             
             elif bool(r.get("available")):
                 #Migration der vorhandenen von added nach available zum angleichen an die neue DB-values
