@@ -33,6 +33,11 @@ class RssDb(object):
             items.append(str(r[0]))
         return items
 
+    def retrieve_key(self, key):
+        res = self._conn.execute(
+            "SELECT distinct value FROM %s WHERE key='%s'" % (self._table, key))
+        return res[0] if res else None
+
     def retrieve_all_beginning_with(self, key):
         res = self._conn.execute(
             "SELECT distinct key FROM " + self._table + " WHERE key LIKE '" + key + "%'")
