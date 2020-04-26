@@ -192,7 +192,7 @@ def ombi(configfile, dbfile, device, log_debug):
                         
                 elif db.retrieve('tmdb_' + str(tmdbid)) == 'search':
                     tmdbtitc = tmdbtitpp.replace(' ', '.')
-                    tmdbtitc = tmdbtitc + %
+                    tmdbtitc = tmdbtitc + '%'
                     if log.retrieve(str(tmdbtitc)) == 'added':
                         log.delete(str(tmdbtitc))
                         print(u"Film " + tmdbtitc + u" aus dem log entfernt.")
