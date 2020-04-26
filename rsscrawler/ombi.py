@@ -193,8 +193,8 @@ def ombi(configfile, dbfile, device, log_debug):
                 elif db.retrieve('tmdb_' + str(tmdbid)) == 'search':
                     tmdbtitc = tmdbtitpp.replace(' ', '.')
                     tmdbtitc += '%'
-                    #if log.retrieve(str(tmdbtitc)) == 'added':
-                    log.delete(str(tmdbtitc))
+                    #if log.retrieve_wildcard(str(tmdbtitc)) == 'added':
+                    log.delete_wildcard(str(tmdbtitc))
                     print(u"Film " + tmdbtitc + u" aus dem log entfernt.")
             
             elif bool(r.get("available")):
@@ -207,7 +207,7 @@ def ombi(configfile, dbfile, device, log_debug):
                 
                 #if list.retrieve(str(tmdbtitpp)):
                 #Hier bin ich bei SQL stecken geblieben, habe keinen weg gefunden gezielt aus der Suchliste zu löschen
-                print(u"Film " + tmdbtitpp + u" soll aus dem linkgraber entfernt werden.")
+                #print(u"Film " + tmdbtitpp + u" soll aus dem linkgraber entfernt werden.")
                 list.delete(str(tmdbtitpp))
 
     for r in requested_shows:
