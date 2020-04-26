@@ -162,11 +162,11 @@ def ombi(configfile, dbfile, device, log_debug):
 
     for r in requested_movies:
         if bool(r.get("approved")):
-        tmdbid = r.get("theMovieDbId")
-        #Title aus ombi entnehmen und sonderzeichen entfernen
-        tmdbtit = r.get("title")
-        tmdbtitp = tmdbtit.replace(':', '')
-        tmdbtitpp = tmdbtitp.replace(' -', '')
+            tmdbid = r.get("theMovieDbId")
+            #Title aus ombi entnehmen und sonderzeichen entfernen
+            tmdbtit = r.get("title")
+            tmdbtitp = tmdbtit.replace(':', '')
+            tmdbtitpp = tmdbtitp.replace(' -', '')
         
             if not bool(r.get("available")):
                 #Bedingung um die alte DB struktur zu migrieren
