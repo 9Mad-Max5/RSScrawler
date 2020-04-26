@@ -162,14 +162,13 @@ def ombi(configfile, dbfile, device, log_debug):
 
     for r in requested_movies:
         if bool(r.get("approved")):
+        tmdbid = r.get("theMovieDbId")
+        #Title aus ombi entnehmen und sonderzeichen entfernen
+        tmdbtit = r.get("title")
+        tmdbtitp = tmdbtit.replace(':', '')
+        tmdbtitpp = tmdbtitp.replace(' -', '')
+        
             if not bool(r.get("available")):
-                tmdbid = r.get("theMovieDbId")
-                
-                #Title aus ombi entnehmen und sonderzeichen entfernen
-                tmdbtit = r.get("title")
-                tmdbtitp = tmdbtit.replace(':', '')
-                tmdbtitpp = tmdbtitp.replace(' -', '')
-                
                 #Bedingung um die alte DB struktur zu migrieren
                 #Vorhandene werden auf available gestztet und dann weiter unten aus dem crawler entfernt.
                 #Die anderen heißen nun search und werden wie gehabt behandelt.
@@ -197,7 +196,6 @@ def ombi(configfile, dbfile, device, log_debug):
                     print(u"Film " + tmdbtitc + u" aus dem log entfernt.")
                                         
             elif bool(r.get("available")):
-                tmdbid = r.get("theMovieDbId")
                 #Migration der vorhandenen von added nach available zum angleichen an die neue DB-values
                 if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
                     db.delete('tmdb_' + str(tmdbid))
