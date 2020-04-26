@@ -187,7 +187,7 @@ def ombi(configfile, dbfile, device, log_debug):
                 tmdbtit = r.get("title")
                 tmdbtitp = tmdbtit.replace(':', '')
                 tmdbtitpp = tmdbtitp.replace(' -', '')
-                if list.retrieve_all_titles(tmdbtitpp):
+                if list.retrieve_all(tmdbtitpp):
                     print(u"Film " + tmdbtitpp + u" soll aus dem linkgraber entfernt werden.")
                     list.delete(str(tmdbtitpp))
 
