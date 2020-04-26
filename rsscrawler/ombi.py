@@ -127,6 +127,9 @@ def ombi(configfile, dbfile, device, log_debug):
     
     #Liste der aktive Filmsuchen
     list = RssDb(dbfile, 'MB_Filme')
+    #Liste aus dem Log, somit können fehlgeschlagene crawlst widerholt werden
+    log = RssDb(dbfile, 'rsscrawler')
+    
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
     api = config.get('api')
@@ -161,6 +164,12 @@ def ombi(configfile, dbfile, device, log_debug):
         if bool(r.get("approved")):
             if not bool(r.get("available")):
                 tmdbid = r.get("theMovieDbId")
+                
+                #Title aus ombi entnehmen und sonderzeichen entfernen
+                tmdbtit = r.get("title")
+                tmdbtitp = tmdbtit.replace(':', '')
+                tmdbtitpp = tmdbtitp.replace(' -', '')
+                
                 #Bedingung um die alte DB struktur zu migrieren
                 #Vorhandene werden auf available gestztet und dann weiter unten aus dem crawler entfernt.
                 #Die anderen heißen nun search und werden wie gehabt behandelt.
@@ -181,6 +190,12 @@ def ombi(configfile, dbfile, device, log_debug):
                             if best_result:
                                 search.download_bl(best_result, device, configfile, dbfile)
                         db.store('tmdb_' + str(tmdbid), 'search')
+                        
+                elif db.retrieve('tmdb_' + str(tmdbid)) == 'search':
+                    tmdbtitc = tmdbtitpp.replace(' ', '.')
+                    db.delete(str(tmdbtitc))
+                    print(u"Film " + tmdbtitc + u" aus dem log entfernt.")
+                                        
             elif bool(r.get("available")):
                 tmdbid = r.get("theMovieDbId")
                 #Migration der vorhandenen von added nach available zum angleichen an die neue DB-values
@@ -190,10 +205,6 @@ def ombi(configfile, dbfile, device, log_debug):
                 elif not db.retrieve('tmdb_' + str(tmdbid)) == 'available':
                     db.store('tmdb_' + str(tmdbid), 'available')
                 
-                #Löschen der Filme welche schon vorhanden sind aus der Liste
-                tmdbtit = r.get("title")
-                tmdbtitp = tmdbtit.replace(':', '')
-                tmdbtitpp = tmdbtitp.replace(' -', '')
                 #if list.retrieve(str(tmdbtitpp)):
                 #Hier bin ich bei SQL stecken geblieben, habe keinen weg gefunden gezielt aus der Suchliste zu löschen
                 print(u"Film " + tmdbtitpp + u" soll aus dem linkgraber entfernt werden.")
