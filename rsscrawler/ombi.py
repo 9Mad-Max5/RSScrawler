@@ -212,6 +212,11 @@ def ombi(configfile, dbfile, device, log_debug):
 
     for r in requested_shows:
         tvdbid = r.get("tvDbId")
+        tvdbtit = r.get("title")
+        tvdbtitp = tmdbtit.replace(':', '')
+        tvdbtitp = tmdbtitp.replace(' -', '')
+        tvdbtitp = tvdbtitp.replace('!', '')
+        
         infos = None
         child_requests = r.get("childRequests")
         for cr in child_requests:
@@ -233,11 +238,19 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if len(e) == 1:
                                     e = "0" + e
                                 se = s + "E" + e
+                                
                                 if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
-                                   db.delete('tvdb_' + str(tvdbid) + '_' + se)
-                                   db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
-                                   eps.append(enr)
-                            
+                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
+                                    db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                    eps.append(enr)
+                                elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                    tvdbtitc = tvdbtitp.replace(' ', '.')
+                                    tvdbtitc += se
+                                    tvdbtitc += '%'
+                                    if log.retrieve_wildcard(str(tvdbtitc)) == 'added':
+                                        log.delete_wildcard(str(tmdbtitc))
+                                        print(u"Episode " + tmdbtitc + u" aus der Historie entfernt.")
+                                    
                             #Händeln der vorhandnen Folgen um sie anschließend zu verwalten ähnlich wie bei den Filmen;
                             #Noch nicht fertig, bisher nur die neue Values dafür eingebettet
                             elif bool(episode.get("available")):
