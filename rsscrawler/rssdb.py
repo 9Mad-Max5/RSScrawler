@@ -24,7 +24,12 @@ class RssDb(object):
         res = self._conn.execute(
             "SELECT value FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
         return res[0] if res else None
-        
+
+    def retrieve_amount(self, key):
+        res = self._conn.execute(
+            "SELECT value FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
+        return len(res) if res else None
+
     def retrieve_wildcard(self, key):
         res = self._conn.execute(
             "SELECT value FROM %s WHERE key LIKE'%s'" % (self._table, key)).fetchone()
