@@ -247,12 +247,15 @@ def ombi(configfile, dbfile, device, log_debug):
                                 elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
                                     tvdbtitc = tvdbtitppp.replace(' ', '.')
                                     tvdbtitcc = tvdbtitc.replace("'", '')
-                                    tvdbtitcc += '.'
-                                    tvdbtitcc += se
-                                    tvdbtitcc += '%'
-                                    if log.retrieve_wildcard(str(tvdbtitcc)) == 'added':
-                                        log.delete_wildcard(str(tvdbtitcc))
-                                        print(u"Episode " + tvdbtitcc + u" aus der Historie entfernt.")
+                                    tvdbtitccc = tvdbtitcc.replace('(', '')
+                                    tvdbtitcccc = tvdbtitccc.replace(')', '')
+                                    tvdbtitcccc += '.'
+                                    tvdbtitcccc += se
+                                    tvdbtitcccc += '%'
+                                    
+                                    if log.retrieve_wildcard(str(tvdbtitcccc)) == 'added':
+                                        log.delete_wildcard(str(tvdbtitcccc))
+                                        print(u"Episode " + tvdbtitcccc + u" aus der Historie entfernt.")
                                     
                             #Händeln der vorhandnen Folgen um sie anschließend zu verwalten ähnlich wie bei den Filmen;
                             #Noch nicht fertig, bisher nur die neue Values dafür eingebettet
