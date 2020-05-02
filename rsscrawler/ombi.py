@@ -213,8 +213,8 @@ def ombi(configfile, dbfile, device, log_debug):
     for r in requested_shows:
         tvdbid = r.get("tvDbId")
         tvdbtit = r.get("title")
-        tvdbtitp = tmdbtit.replace(':', '')
-        tvdbtitp = tmdbtitp.replace(' -', '')
+        tvdbtitp = tvdbtit.replace(':', '')
+        tvdbtitp = tvdbtitp.replace(' -', '')
         tvdbtitp = tvdbtitp.replace('!', '')
         
         infos = None
