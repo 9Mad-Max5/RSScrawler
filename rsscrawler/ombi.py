@@ -250,7 +250,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtitcc += '.'
                                     tvdbtitcc += se
                                     tvdbtitcc += '%'
-                                    print(u"Episode " + tvdbtitcc + u" aus der Historie entfernt.")
                                     if log.retrieve_wildcard(str(tvdbtitcc)) == 'added':
                                         log.delete_wildcard(str(tvdbtitcc))
                                         print(u"Episode " + tvdbtitcc + u" aus der Historie entfernt.")
