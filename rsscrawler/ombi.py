@@ -253,6 +253,9 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtitcccc += se
                                     tvdbtitcccc += '%'
                                     
+                                    if tvdbtitcccc.find('Shameless') != -1:
+                                        print(u"Episode " + tvdbtitcccc + u" sollte aus der Historie entfernt.")
+                                    
                                     if log.retrieve_wildcard(str(tvdbtitcccc)) == 'added':
                                         log.delete_wildcard(str(tvdbtitcccc))
                                         print(u"Episode " + tvdbtitcccc + u" aus der Historie entfernt.")
