@@ -245,7 +245,8 @@ def ombi(configfile, dbfile, device, log_debug):
                                     eps.append(enr)
                                 elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
                                     tvdbtitc = tvdbtitp.replace(' ', '.')
-                                    tvdbtitc += se
+                                    tvdbtitc = tvdbtitp.replace("'", '')
+                                    tvdbtitc += '.'se
                                     tvdbtitc += '%'
                                     print(u"Episode " + tvdbtitc + u" aus der Historie entfernt.")
                                     if log.retrieve_wildcard(str(tvdbtitc)) == 'added':
