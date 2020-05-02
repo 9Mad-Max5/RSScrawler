@@ -214,8 +214,8 @@ def ombi(configfile, dbfile, device, log_debug):
         tvdbid = r.get("tvDbId")
         tvdbtit = r.get("title")
         tvdbtitp = tvdbtit.replace(':', '')
-        tvdbtitp = tvdbtitp.replace(' -', '')
-        tvdbtitp = tvdbtitp.replace('!', '')
+        tvdbtitpp = tvdbtitp.replace(' -', '')
+        tvdbtitppp = tvdbtitpp.replace('!', '')
         
         infos = None
         child_requests = r.get("childRequests")
@@ -243,16 +243,17 @@ def ombi(configfile, dbfile, device, log_debug):
                                     db.delete('tvdb_' + str(tvdbid) + '_' + se)
                                     db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
                                     eps.append(enr)
+                                
                                 elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
-                                    tvdbtitc = tvdbtitp.replace(' ', '.')
-                                    tvdbtitc = tvdbtitp.replace("'", '')
-                                    tvdbtitc += '.'
-                                    tvdbtitc += se
-                                    tvdbtitc += '%'
-                                    print(u"Episode " + tvdbtitc + u" aus der Historie entfernt.")
-                                    if log.retrieve_wildcard(str(tvdbtitc)) == 'added':
-                                        log.delete_wildcard(str(tvdbtitc))
-                                        print(u"Episode " + tvdbtitc + u" aus der Historie entfernt.")
+                                    tvdbtitc = tvdbtitppp.replace(' ', '.')
+                                    tvdbtitcc = tvdbtitc.replace("'", '')
+                                    tvdbtitcc += '.'
+                                    tvdbtitcc += se
+                                    tvdbtitcc += '%'
+                                    print(u"Episode " + tvdbtitcc + u" aus der Historie entfernt.")
+                                    if log.retrieve_wildcard(str(tvdbtitcc)) == 'added':
+                                        log.delete_wildcard(str(tvdbtitcc))
+                                        print(u"Episode " + tvdbtitcc + u" aus der Historie entfernt.")
                                     
                             #Händeln der vorhandnen Folgen um sie anschließend zu verwalten ähnlich wie bei den Filmen;
                             #Noch nicht fertig, bisher nur die neue Values dafür eingebettet
