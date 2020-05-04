@@ -160,9 +160,17 @@ def ombi(configfile, dbfile, device, log_debug):
         log_debug("Ombi ist nicht erreichbar!")
         return False
         
-    collected_movies = []
-    collected_movies = db.retrieve_all('tmdb_%' == '%')
+    stored_movies = []
+    stored_movies = db.retrieve_all('tmdb_%' == '%')
     
+    ombi_movies = []
+    for r in requested_movies:
+        ombi_movies = r.get("theMovieDbId")
+
+    for r in stored_movies:
+        print(stored_movies) 
+        for j in ombi_movies:
+        
     
     for r in requested_movies:
         if bool(r.get("approved")):
