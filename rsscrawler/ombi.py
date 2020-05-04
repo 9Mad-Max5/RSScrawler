@@ -209,10 +209,8 @@ def ombi(configfile, dbfile, device, log_debug):
                 elif not db.retrieve('tmdb_' + str(tmdbid)) == 'available':
                     db.store('tmdb_' + str(tmdbid), 'available')
                 
-                #if list.retrieve(str(tmdbtitpp)):
-                #Hier bin ich bei SQL stecken geblieben, habe keinen weg gefunden gezielt aus der Suchliste zu löschen
-                #print(u"Film " + tmdbtitpp + u" soll aus dem linkgraber entfernt werden.")
-                list.delete(str(tmdbtitpp))
+                if list.retrieve_key(str(tmdbtitpp)):
+                    list.delete(str(tmdbtitpp))
 
     for r in requested_shows:
         tvdbid = r.get("tvDbId")
