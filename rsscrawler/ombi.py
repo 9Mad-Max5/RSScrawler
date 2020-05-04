@@ -167,8 +167,8 @@ def ombi(configfile, dbfile, device, log_debug):
     for r in requested_movies:
         ombi_movies = r.get("theMovieDbId")
 
-    for r in stored_movies:
-        print(stored_movies) 
+    for r in ombi_movies:
+        print(ombi_movies) 
         #for j in ombi_movies:
         
     
