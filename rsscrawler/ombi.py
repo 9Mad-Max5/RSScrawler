@@ -168,7 +168,7 @@ def ombi(configfile, dbfile, device, log_debug):
         ombi_movies.append(r.get("theMovieDbId"))
 
     for r in ombi_movies:
-        print(u"Film: " + ombi_movies + u" ombie_movies.")
+        print(u"Film: " + ombi_movies[r] + u" ombie_movies.")
         #for j in ombi_movies:
         
     
