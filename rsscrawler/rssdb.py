@@ -30,6 +30,11 @@ class RssDb(object):
             "SELECT value FROM %s WHERE key LIKE'%s'" % (self._table, key)).fetchone()
         return res[0] if res else None
 
+    def retrieve_key(self, key):
+        res = self._conn.execute(
+            "SELECT key FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
+        return res[0] if res else None
+
     def retrieve_all(self, key):
         res = self._conn.execute(
             "SELECT distinct value FROM %s WHERE key='%s' ORDER BY value" % (self._table, key))
