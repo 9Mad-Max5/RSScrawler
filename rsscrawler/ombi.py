@@ -249,11 +249,12 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtitcc = tvdbtitc.replace("'", '')
                                     tvdbtitccc = tvdbtitcc.replace('(', '')
                                     tvdbtitd = tvdbtitccc.replace(')', '')
-                                    tvdbtitse += '.%.'
+                                    tvdbtitd += '.%.'
+                                    tvdbtitse = tvdbtitd
+                                    tvdbtits = tvdbtitd
                                     tvdbtitse += se
                                     tvdbtitse += '%'
                                     
-                                    tvdbtits += '.%.'
                                     tvdbtits += s
                                     tvdbtits += '%'
                                     
