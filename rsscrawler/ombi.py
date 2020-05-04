@@ -169,7 +169,7 @@ def ombi(configfile, dbfile, device, log_debug):
 
     for r in stored_movies:
         print(stored_movies) 
-        for j in ombi_movies:
+        #for j in ombi_movies:
         
     
     for r in requested_movies:
