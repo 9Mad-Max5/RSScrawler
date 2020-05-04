@@ -159,7 +159,11 @@ def ombi(configfile, dbfile, device, log_debug):
     except:
         log_debug("Ombi ist nicht erreichbar!")
         return False
-
+        
+    collected_movies = []
+    collected_movies = db.retrieve_all('tmdb_%' == '%')
+    
+    
     for r in requested_movies:
         if bool(r.get("approved")):
             tmdbid = r.get("theMovieDbId")
@@ -321,9 +325,13 @@ def ombi(configfile, dbfile, device, log_debug):
                                                         if len(e) == 1:
                                                             e = "0" + e
                                                         se = s + "E" + e
-                                                        #Müsste es hier nach dem selben Stil search oder available sein?
-                                                        #Search soll immer bedeuten das es noch offen ist.
-                                                        db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
+
+                                                        if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
+                                                            db.delete('tvdb_' + str(tvdbid) + '_' + se)
+                                                            db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                                        elif not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                                            db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                                            
                                                     if not add_season:
                                                         log_debug(
                                                             u"Konnte kein Release für " + title + " " + se + "finden.")
@@ -338,7 +346,13 @@ def ombi(configfile, dbfile, device, log_debug):
                                             if len(e) == 1:
                                                 e = "0" + e
                                             se = s + "E" + e
-                                            db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                            
+                                            if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
+                                                db.delete('tvdb_' + str(tvdbid) + '_' + se)
+                                                db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                            elif not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                                db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                                
                                     print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
 
     return device
