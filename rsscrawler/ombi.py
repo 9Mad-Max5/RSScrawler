@@ -248,14 +248,22 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtitc = tvdbtitppp.replace(' ', '.')
                                     tvdbtitcc = tvdbtitc.replace("'", '')
                                     tvdbtitccc = tvdbtitcc.replace('(', '')
-                                    tvdbtitcccc = tvdbtitccc.replace(')', '')
-                                    tvdbtitcccc += '.%.'
-                                    tvdbtitcccc += se
-                                    tvdbtitcccc += '%'
+                                    tvdbtitd = tvdbtitccc.replace(')', '')
+                                    tvdbtitse += '.%.'
+                                    tvdbtitse += se
+                                    tvdbtitse += '%'
                                     
-                                    if log.retrieve_wildcard(str(tvdbtitcccc)) == 'added':
-                                        log.delete_wildcard(str(tvdbtitcccc))
-                                        print(u"Episode " + tvdbtitcccc + u" aus der Historie entfernt.")
+                                    tvdbtits += '.%.'
+                                    tvdbtits += s
+                                    tvdbtits += '%'
+                                    
+                                    if log.retrieve_wildcard(str(tvdbtitse)) == 'added':
+                                        log.delete_wildcard(str(tvdbtitse))
+                                        print(u"Episode " + tvdbtitse + u" aus der Historie entfernt.")
+                                    
+                                    if log.retrieve_wildcard(str(tvdbtits)) == 'added':
+                                        log.delete_wildcard(str(tvdbtits))
+                                        print(u"Staffel " + tvdbtits + u" aus der Historie entfernt.")
                                     
                             #Händeln der vorhandnen Folgen um sie anschließend zu verwalten ähnlich wie bei den Filmen;
                             #Noch nicht fertig, bisher nur die neue Values dafür eingebettet
