@@ -164,7 +164,8 @@ def ombi(configfile, dbfile, device, log_debug):
     stored_movies = db.retrieve_all('tmdb_%' == '%')
     
     ombi_movies = []
-    ombi_movies.append(r.get("theMovieDbId"))
+    for r in requested_movies:
+        ombi_movies.append(r.get("theMovieDbId"))
 
     for r in ombi_movies:
         print(u"Film: " + ombi_movies + u" ombie_movies.")
