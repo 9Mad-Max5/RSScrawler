@@ -346,7 +346,8 @@ def ombi(configfile, dbfile, device, log_debug):
                                                         log_debug(
                                                             u"Konnte kein Release für " + title + " " + se + "finden.")
                                                     break
-                                            db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                            if not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                                db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
                                     else:
                                         best_result = search.best_result_sj(title, configfile, dbfile)
                                         if best_result:
