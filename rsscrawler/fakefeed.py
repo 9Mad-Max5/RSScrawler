@@ -7,7 +7,9 @@ import re
 
 import feedparser
 from bs4 import BeautifulSoup
+import json
 
+from rsscrawler.rsscommon import decode_base64
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 
@@ -131,6 +133,35 @@ def hs_search_results(url):
                 except:
                     break
     return content
+
+
+def sj_releases_to_feedparser_dict(releases, type):
+    upload_dates = json.loads(releases)
+    entries = []
+
+    for date in upload_dates:
+        releases = upload_dates[date]
+        for release in releases:
+            if type == 'seasons' and release['episode']:
+                continue
+            elif type == 'episodes' and not release['episode']:
+                continue
+            title = release['name']
+            series_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/serie/' + release["_media"]['slug']
+            api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + release["_media"][
+                "id"] + '/releases'
+            published = date
+
+            entries.append(FakeFeedParserDict({
+                "title": title,
+                "series_url": series_url,
+                "api_url": api_url,
+                "published": published
+            }))
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
 
 
 def dj_to_feedparser_dict(beautifulsoup_object):
