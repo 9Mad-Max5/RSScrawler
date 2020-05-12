@@ -253,6 +253,10 @@ def ombi(configfile, dbfile, device, log_debug):
                                     db.delete('tvdb_' + str(tvdbid) + '_' + se)
                                     db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
                                     eps.append(enr)
+                                    
+                                elif not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                    db.store('tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                    eps.append(enr)
                                 
                                 elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
                                     
