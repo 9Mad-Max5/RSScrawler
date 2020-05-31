@@ -422,6 +422,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $scope.currentPage = 0;
         let title = $scope.search;
         $scope.searching = true;
+        window.alert(title);
         if (!title) {
             $scope.results = [];
             $scope.resLength = 0;
@@ -432,8 +433,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $scope.results = res.data.results;
                     $scope.resLength = Object.values($scope.results.bl).length;
                     $scope.search = "";
-
-                    window.alert(title);
                     console.log('Nach ' + title + ' gesucht!');
                     getLog();
                     getLists();
