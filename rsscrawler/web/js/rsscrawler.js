@@ -432,6 +432,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $scope.results = res.data.results;
                     $scope.resLength = Object.values($scope.results.bl).length;
                     $scope.search = "";
+
+                    window.alert(title);
                     console.log('Nach ' + title + ' gesucht!');
                     getLog();
                     getLists();
