@@ -1114,6 +1114,7 @@ if (title) {
                     password = ""
                 device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
                 if device:
+                    remove_decrypt(name, dbfile)
                     return "Success", 200
             return "Failed", 400
         else:
