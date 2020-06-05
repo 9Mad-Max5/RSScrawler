@@ -24,6 +24,7 @@ from rsscrawler import version
 from rsscrawler.myjd import check_device
 from rsscrawler.myjd import do_add_decrypted
 from rsscrawler.myjd import do_package_replace
+from rsscrawler.myjd import download
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import get_state
@@ -792,43 +793,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/rsscrawler_helper.user.js", methods=['GET'])
-    @requires_auth
-    def rsscrawler_helper():
-        if request.method == 'GET':
-            return """// ==UserScript==
-                // @name            RSScrawler Helper
-                // @author          rix1337
-                // @description     Clicks the correct download button on SJ
-                // @version         0.0.2
-                // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js 
-                // @include         https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/*
-                // ==/UserScript==
-                document.body.addEventListener('mousedown', function(e) {
-                    if (e.target.tagName != "A") return;
-                    var anchor = e.target;
-                    if (anchor.href.search(/""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """\/serie\//i) != -1) {
-                        anchor.href = anchor.href + '#' + anchor.text;
-                    }
-                });
-                
-                var title = window.location.hash.replace("#", "");
-                if (title) {
-                    $('.wrapper').prepend('<h3>[RSScrawler Helper] ' + title + '</h3>');
-                    $(".container").hide();
-                    var checkExist = setInterval(function() {
-                       if ($("tr:contains('" + title + "')").length) {
-                            $(".container").show();
-                            $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
-                            console.log("[RSScrawler Helper] Clicked Download button of " + title);
-                            clearInterval(checkExist);
-                       }
-                    }, 100);
-                };
-                """, 200
-        else:
-            return "Failed", 405
-
     @app.route(prefix + "/api/myjd_cnl/<uuid>", methods=['POST'])
     @requires_auth
     def myjd_cnl(uuid):
@@ -1051,6 +1015,107 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 return redirect("http://linksnappy.com/?ref=397097", code=302)
             else:
                 return "Failed", 405
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/helper/rsscrawler_helper.user.js", methods=['GET'])
+    @requires_auth
+    def rsscrawler_helper():
+        if request.method == 'GET':
+            return """// ==UserScript==
+// @name            RSScrawler Helper
+// @author          rix1337
+// @description     Clicks the correct download button on SJ
+// @version         0.0.3
+// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
+// @match           https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/*
+// @exclude         https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/serie/search?q=*
+// ==/UserScript==
+document.body.addEventListener('mousedown', function(e) {
+    if (e.target.tagName != "A") return;
+    var anchor = e.target;
+    if (anchor.href.search(/""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """\/serie\//i) != -1) {
+        anchor.href = anchor.href + '#' + anchor.text;
+    }
+});
+
+function Sleep(milliseconds) {
+   return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+var tag = window.location.hash.replace("#", "").split('|');
+var title = tag[0]
+var password = tag[1]
+if (title) {
+    // Check if we need to log in
+    $('.wrapper').prepend('<h3>[RSScrawler Helper] ' + title + '</h3>');
+    $(".container").hide();
+    var checkExist = setInterval(async function() {
+        if ($("tr:contains('" + title + "')").length) {
+            $(".container").show();
+            await Sleep(500);
+            if ($("button:contains('User login')").length) {
+                $("button:contains('User login')").click;
+                $("#input-email").val("rix@rix.ninja");
+                $("#input-password").val("qD$8K54Eea58ZTkysggk*cKtC9w3Df");
+                $("button:contains('Login')").click;
+            }
+            await Sleep(500);
+            $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
+            console.log("[RSScrawler Helper] Clicked Download button of " + title);
+        }
+    }, 100);
+
+    var dlExists = setInterval(async function() {
+        if ($("tr:contains('Download Part')").length) {
+            var items = $("tr:contains('Download Part')").find("a");
+            var links = [];
+            items.each(function(index){
+                links.push(items[index].href);
+            })
+            console.log("[RSScrawler Helper] found download links: " + links);
+            clearInterval(dlExists);
+        }
+    }, 100);
+};""", 200
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/helper/to_solve/", methods=['GET'])
+    @requires_auth
+    def to_solve():
+        if request.method == 'GET':
+            to_decrypt = get_to_decrypt(dbfile)
+            if to_decrypt:
+                to_decrypt = to_decrypt[0]
+                name = to_decrypt["name"]
+                url = to_decrypt["url"] + "#" + name + "|" + to_decrypt["password"]
+                return "<a id='link' href=" + url + ">" + name + "</a>", 200
+            else:
+                return "Nothing to decrypt", 200
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/helper/to_download/<payload>", methods=['GET'])
+    @requires_auth
+    def to_download(payload):
+        global device
+        if request.method == 'GET':
+            try:
+                payload = decode_base64(payload).split("|")
+            except:
+                return "Failed", 400
+            if payload:
+                links = payload[0]
+                name = payload[1]
+                try:
+                    password = payload[2]
+                except:
+                    password = ""
+                device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
+                if device:
+                    return "Success", 200
+            return "Failed", 400
         else:
             return "Failed", 405
 
