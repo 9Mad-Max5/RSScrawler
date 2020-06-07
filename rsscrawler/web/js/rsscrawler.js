@@ -422,7 +422,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $scope.currentPage = 0;
         let title = $scope.search;
         $scope.searching = true;
-        window.alert(title);
         if (!title) {
             $scope.results = [];
             $scope.resLength = 0;
