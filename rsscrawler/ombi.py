@@ -293,7 +293,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtitse += '%'
 
                                     tvdbtits += s
-                                    tvdbtits += '%'
+                                    tvdbtits += '.%'
 
                                     if log.retrieve_wildcard(str(tvdbtitse)) == 'added':
                                         log.delete_wildcard(str(tvdbtitse))
