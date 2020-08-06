@@ -417,7 +417,7 @@ def ombi(configfile, dbfile, device, log_debug):
 
                             # Händeln der vorhandnen Folgen um sie anschließend zu verwalten ähnlich wie bei den Filmen;
                             # Noch nicht fertig, bisher nur die neue Values dafür eingebettet
-                            elif bool(episode.get("available")):
+                            if bool(episode.get("available")):
                                 enr = episode.get("episodeNumber")
                                 s = str(sn)
                                 if len(s) == 1:
