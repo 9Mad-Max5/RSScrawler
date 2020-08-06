@@ -189,6 +189,7 @@ def ombi(configfile, dbfile, device, log_debug):
     for r in requested_movies:
         if bool(r.get("approved")):
             tmdbid = r.get("theMovieDbId")
+
             # Title aus ombi entnehmen und sonderzeichen entfernen
             tmdbtit = r.get("title")
             tmdbtitp = tmdbtit.replace(':', '')
@@ -201,6 +202,7 @@ def ombi(configfile, dbfile, device, log_debug):
                 if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
                     db.delete('tmdb_' + str(tmdbid))
                     db.store('tmdb_' + str(tmdbid), 'search')
+
                 elif not db.retrieve('tmdb_' + str(tmdbid)) == 'search':
                     title = mdb(configfile, dbfile, tmdbid, mdb_api, log_debug)
                     if title:
@@ -219,7 +221,15 @@ def ombi(configfile, dbfile, device, log_debug):
                             if best_result:
                                 search.download_bl(
                                     best_result, device, configfile, dbfile)
-                        db.store('tmdb_' + str(tmdbid), 'search')
+                        db.store('tmdb_' + str(tmdbid), 'active1')
+
+                elif db.retrieve('tmdb_' + str(tmdbid)) == 'active1':
+                    db.delete('tmdb_' + str(tmdbid))
+                    db.store('tmdb_' + str(tmdbid), 'active2')
+
+                elif db.retrieve('tmdb_' + str(tmdbid)) == 'active2':
+                    db.delete('tmdb_' + str(tmdbid))
+                    db.store('tmdb_' + str(tmdbid), 'search')
 
                 elif db.retrieve('tmdb_' + str(tmdbid)) == 'search':
                     tmdbtitc = tmdbtitpp.replace(' ', '.')
@@ -228,13 +238,19 @@ def ombi(configfile, dbfile, device, log_debug):
                         log.delete_wildcard(str(tmdbtitc))
                         print(u"Film " + tmdbtitc +
                               u" aus der Historie entfernt.")
+                        # Merken das es im Umlauf zuvor aus der Historie entfernt wurde
 
             elif bool(r.get("available")):
                 # Migration der vorhandenen von added nach available zum angleichen an die neue DB-values
                 if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
                     db.delete('tmdb_' + str(tmdbid))
                     db.store('tmdb_' + str(tmdbid), 'available')
-                elif not db.retrieve('tmdb_' + str(tmdbid)) == 'available':
+
+                if db.retrieve('tmdb_' + str(tmdbid)) == 'search':
+                    db.delete('tmdb_' + str(tmdbid))
+                    db.store('tmdb_' + str(tmdbid), 'available')
+
+                if not db.retrieve('tmdb_' + str(tmdbid)) == 'available':
                     db.store('tmdb_' + str(tmdbid), 'available')
 
                 if list.retrieve_key(str(tmdbtitpp)):
@@ -304,32 +320,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                         log.delete_wildcard(str(tvdbtits))
                                         print(u"Staffel " + tvdbtits +
                                               u" aus der Historie entfernt.")
-
-                            # Händeln der vorhandnen Folgen um sie anschließend zu verwalten ähnlich wie bei den Filmen;
-                            # Noch nicht fertig, bisher nur die neue Values dafür eingebettet
-                            elif bool(episode.get("available")):
-                                enr = episode.get("episodeNumber")
-                                s = str(sn)
-                                if len(s) == 1:
-                                    s = "0" + s
-                                s = "S" + s
-                                e = str(enr)
-                                if len(e) == 1:
-                                    e = "0" + e
-                                se = s + "E" + e
-                                if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
-                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
-                                    db.store('tvdb_' + str(tvdbid) +
-                                             '_' + se, 'available')
-
-                                elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
-                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
-                                    db.store('tvdb_' + str(tvdbid) +
-                                             '_' + se, 'available')
-
-                                if not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'available':
-                                    db.store('tvdb_' + str(tvdbid) +
-                                             '_' + se, 'available')
 
                         if eps:
                             if not infos:
@@ -424,52 +414,6 @@ def ombi(configfile, dbfile, device, log_debug):
                         eps = []
                         episodes = season.get("episodes")
                         for episode in episodes:
-                            if not bool(episode.get("available")):
-                                enr = episode.get("episodeNumber")
-                                s = str(sn)
-                                if len(s) == 1:
-                                    s = "0" + s
-                                s = "S" + s
-                                e = str(enr)
-                                if len(e) == 1:
-                                    e = "0" + e
-                                se = s + "E" + e
-
-                                if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
-                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
-                                    db.store('tvdb_' + str(tvdbid) +
-                                             '_' + se, 'search')
-                                    eps.append(enr)
-
-                                elif not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
-                                    db.store('tvdb_' + str(tvdbid) +
-                                             '_' + se, 'search')
-                                    eps.append(enr)
-
-                                elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
-
-                                    tvdbtitc = tvdbtitppp.replace(' ', '.')
-                                    tvdbtitcc = tvdbtitc.replace("'", '')
-                                    tvdbtitccc = tvdbtitcc.replace('(', '')
-                                    tvdbtitd = tvdbtitccc.replace(')', '')
-                                    tvdbtitd += '.%.'
-                                    tvdbtitse = tvdbtitd
-                                    tvdbtits = tvdbtitd
-                                    tvdbtitse += se
-                                    tvdbtitse += '%'
-
-                                    tvdbtits += s
-                                    tvdbtits += '%'
-
-                                    if log.retrieve_wildcard(str(tvdbtitse)) == 'added':
-                                        log.delete_wildcard(str(tvdbtitse))
-                                        print(u"Episode " + tvdbtitse +
-                                              u" aus der Historie entfernt.")
-
-                                    if log.retrieve_wildcard(str(tvdbtits)) == 'added':
-                                        log.delete_wildcard(str(tvdbtits))
-                                        print(u"Staffel " + tvdbtits +
-                                              u" aus der Historie entfernt.")
 
                             # Händeln der vorhandnen Folgen um sie anschließend zu verwalten ähnlich wie bei den Filmen;
                             # Noch nicht fertig, bisher nur die neue Values dafür eingebettet
