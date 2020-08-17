@@ -288,7 +288,7 @@ def main():
 
     print(u"┌──────────────────────────────────────────────┐")
     print(u"  RSScrawler " + version + " von RiX")
-    print(u"  Mad-Max Testedition2")
+    print(u"  Mad-Max Testedition")
     print(u"  https://github.com/rix1337/RSScrawler")
     print(u"└──────────────────────────────────────────────┘")
 
