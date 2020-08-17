@@ -221,25 +221,19 @@ def ombi(configfile, dbfile, device, log_debug):
                             if best_result:
                                 search.download_bl(
                                     best_result, device, configfile, dbfile)
-                        db.store('tmdb_' + str(tmdbid), 'active1')
-
-                elif db.retrieve('tmdb_' + str(tmdbid)) == 'active1':
-                    db.delete('tmdb_' + str(tmdbid))
-                    db.store('tmdb_' + str(tmdbid), 'active2')
-
-                elif db.retrieve('tmdb_' + str(tmdbid)) == 'active2':
-                    db.delete('tmdb_' + str(tmdbid))
-                    db.store('tmdb_' + str(tmdbid), 'search')
+                        db.store('tmdb_' + str(tmdbid), 'search')
 
                 elif db.retrieve('tmdb_' + str(tmdbid)) == 'search':
                     tmdbtitc = tmdbtitpp.replace(' ', '.')
                     tmdbtitc += '%'
-                    if log.retrieve_wildcard(str(tmdbtitc)) == 'added':
-                        log.delete_wildcard(str(tmdbtitc))
-                        print(u"Film " + tmdbtitc +
-                              u" aus der Historie entfernt.")
-                        # Merken das es im Umlauf zuvor aus der Historie entfernt wurde
+                    
+                    #Funktioniert nicht das log wird zu aggresiv gelöscht die Dateien werden immer wieder gefetcht
 
+                    #if log.retrieve_wildcard(str(tmdbtitc)) == 'added':
+                    #    log.delete_wildcard(str(tmdbtitc))
+                    #    print(u"Film " + tmdbtitc +
+                    #          u" aus der Historie entfernt.")
+                    
             elif bool(r.get("available")):
                 # Migration der vorhandenen von added nach available zum angleichen an die neue DB-values
                 if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
@@ -311,15 +305,16 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtits += s
                                     tvdbtits += '.%'
 
-                                    if log.retrieve_wildcard(str(tvdbtitse)) == 'added':
-                                        log.delete_wildcard(str(tvdbtitse))
-                                        print(u"Episode " + tvdbtitse +
-                                              u" aus der Historie entfernt.")
+                                    #Wie bei Filmen zu aggresiv
+                                    #if log.retrieve_wildcard(str(tvdbtitse)) == 'added':
+                                    #    log.delete_wildcard(str(tvdbtitse))
+                                    #    print(u"Episode " + tvdbtitse +
+                                    #          u" aus der Historie entfernt.")
 
-                                    if log.retrieve_wildcard(str(tvdbtits)) == 'added':
-                                        log.delete_wildcard(str(tvdbtits))
-                                        print(u"Staffel " + tvdbtits +
-                                              u" aus der Historie entfernt.")
+                                    #if log.retrieve_wildcard(str(tvdbtits)) == 'added':
+                                    #    log.delete_wildcard(str(tvdbtits))
+                                    #    print(u"Staffel " + tvdbtits +
+                                    #          u" aus der Historie entfernt.")
 
                         if eps:
                             if not infos:
