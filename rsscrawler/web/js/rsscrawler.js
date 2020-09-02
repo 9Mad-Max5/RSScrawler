@@ -156,6 +156,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
 
     $scope.searchNow = function () {
+        showSuccess('SearchNow');
         searchNow();
     };
 
