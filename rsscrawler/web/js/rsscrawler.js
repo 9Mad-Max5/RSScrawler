@@ -448,6 +448,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $scope.resLength = Object.values($scope.results.bl).length;
                     $scope.search = "";
                     console.log('Nach ' + title + ' gesucht!');
+                    showSuccess('Nach ' + title + ' gesucht!');
                     getLog();
                     getLists();
                     $("#spinner-search").fadeOut();
