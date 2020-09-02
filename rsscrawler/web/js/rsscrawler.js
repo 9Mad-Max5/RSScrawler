@@ -433,6 +433,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function searchNow() {
+        showSuccess('SearchNow');
         $("#spinner-search").fadeIn();
         $scope.currentPage = 0;
         let title = $scope.search;
@@ -446,7 +447,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 .then(function (res) {
                     $scope.results = res.data.results;
                     $scope.resLength = Object.values($scope.results.bl).length;
-                    $scope.search = "";
+                    //$scope.search = "";
                     console.log('Nach ' + title + ' gesucht!');
                     showSuccess('Nach ' + title + ' gesucht!');
                     getLog();
