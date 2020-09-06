@@ -27,6 +27,7 @@ from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import download
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
+from rsscrawler.myjd import get_packages_in_linkgrabber
 from rsscrawler.myjd import get_state
 from rsscrawler.myjd import jdownloader_pause
 from rsscrawler.myjd import jdownloader_start
@@ -41,6 +42,7 @@ from rsscrawler.rsscommon import Unbuffered
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import get_to_decrypt
 from rsscrawler.rsscommon import remove_decrypt
+from rsscrawler.rsscommon import rreplace
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -1189,7 +1191,24 @@ if (title) {
     def to_download(payload):
         global device
         hostnames = RssConfig('Hostnames', configfile)
+        sj = hostnames.get('sj')
+        dj = hostnames.get('dj')
+        sf = hostnames.get('sf')
+        mb = hostnames.get('mb')
+        hw = hostnames.get('hw')
+        hs = hostnames.get('hs')
+        fx = hostnames.get('fx')
+        nk = hostnames.get('nk')
         fc = hostnames.get('fc')
+
+        check_replace = [sj, dj, sf, mb, hw, hs, fx, nk, fc]
+        to_replace = []
+        for check_name in check_replace:
+            if check_name:
+                to_replace.append(" - " + check_name)
+                if " - " + check_name.replace("www.", "") not in to_replace:
+                    to_replace.append(" - " + check_name.replace("www.", ""))
+
         if request.method == 'GET':
             try:
                 payload = decode_base64(payload).split("|")
@@ -1198,6 +1217,11 @@ if (title) {
             if payload:
                 links = payload[0]
                 name = payload[1]
+                try:
+                    for r in to_replace:
+                        name = name.replace(r, "")
+                except:
+                    pass
                 try:
                     password = payload[2]
                 except:
@@ -1212,8 +1236,9 @@ if (title) {
                         links = "https://" + fc + "/DLC/" + dlc[0] + ".dlc"
                 except:
                     pass
-                to_start = RssConfig('Crawljobs', configfile).get("autostart")
-                device = download(configfile, dbfile, device, name, "RSScrawler", links, password, autostart=to_start)
+
+                RssDb(dbfile, 'crawldog').store(name, 'added')
+                device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
                 if device:
                     if ids:
                         ids = ids.replace("%20", "").split(";")
@@ -1237,7 +1262,60 @@ if (title) {
 
                         remove_from_linkgrabber(configfile, device, linkids, uuids)
                     else:
-                        remove_decrypt(name, dbfile)
+                        is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', name)
+                        if not is_episode:
+                            re_name = rreplace(name.lower(), "-", ".*", 1)
+                            season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
+                            if season_string:
+                                re_name = re_name.replace(season_string[0], season_string[0] + '.*')
+                            codec_tags = [".h264", ".x264"]
+                            for tag in codec_tags:
+                                re_name = re_name.replace(tag, ".*264")
+                            web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
+                            for tag in web_tags:
+                                re_name = re_name.replace(tag, ".web.*")
+                            multigroup = re.findall(r'.*-((.*)\/(.*))', name.lower())
+                            if multigroup:
+                                re_name = re_name.replace(multigroup[0][0],
+                                                          '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
+                        else:
+                            re_name = name
+
+                        packages = get_packages_in_linkgrabber(configfile, device)
+                        if packages:
+                            failed = packages[0]
+                            offline = packages[1]
+                            try:
+                                if failed:
+                                    for package in failed:
+                                        if re.match(re.compile(re_name), package['name'].lower()):
+                                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                            if episode:
+                                                RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                            linkids = package['linkids']
+                                            uuids = [package['uuid']]
+                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                            break
+                                if offline:
+                                    for package in offline:
+                                        if re.match(re.compile(re_name), package['name'].lower()):
+                                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                            if episode:
+                                                RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                            linkids = package['linkids']
+                                            uuids = [package['uuid']]
+                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                            break
+                            except:
+                                pass
+                        packages = get_to_decrypt(dbfile)
+                        if packages:
+                            for package in packages:
+                                if re.match(re.compile(re_name), package['name'].lower()):
+                                    episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                    if episode:
+                                        RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                    remove_decrypt(package['name'], dbfile)
                     try:
                         notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
                     except:
