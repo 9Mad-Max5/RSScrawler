@@ -4,7 +4,7 @@
 
 import sqlite3
 
-import rsscrawler.common
+import rsscrawler.rsscommon
 
 
 def get_first(iterable):
@@ -23,6 +23,16 @@ class RssDb(object):
     def retrieve(self, key):
         res = self._conn.execute(
             "SELECT value FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
+        return res[0] if res else None
+
+    def retrieve_wildcard(self, key):
+        res = self._conn.execute(
+            "SELECT value FROM %s WHERE key LIKE'%s'" % (self._table, key)).fetchone()
+        return res[0] if res else None
+
+    def retrieve_key(self, key):
+        res = self._conn.execute(
+            "SELECT key FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
         return res[0] if res else None
 
     def retrieve_all(self, key):
@@ -65,6 +75,11 @@ class RssDb(object):
         self._conn.execute("DELETE FROM %s WHERE key='%s'" %
                            (self._table, key))
         self._conn.commit()
+        
+    def delete_wildcard(self, key):
+        self._conn.execute("DELETE FROM %s WHERE key LIKE'%s'" %
+                           (self._table, key))
+        self._conn.commit()
 
     def reset(self):
         self._conn.execute("DROP TABLE IF EXISTS %s" % self._table)
@@ -90,7 +105,7 @@ class ListDb(object):
         return items if items else None
 
     def store(self, key):
-        key = rsscrawler.common.sanitize(key)
+        key = rsscrawler.rsscommon.sanitize(key)
         self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
                            (self._table, key))
         self._conn.commit()
@@ -101,7 +116,7 @@ class ListDb(object):
             for k in keys:
                 if k:
                     key = ()
-                    k = rsscrawler.common.sanitize(k)
+                    k = rsscrawler.rsscommon.sanitize(k)
                     key = key + (k,)
                     items.append(key)
         else:
