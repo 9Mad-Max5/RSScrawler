@@ -156,7 +156,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
 
     $scope.searchNow = function () {
-        showSuccess('SearchNow');
         searchNow();
     };
 
@@ -337,7 +336,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 if ($scope.docker) {
                     $(".docker").prop("disabled", true);
                 }
-                $scope.helper_active = res.data.version.helper_active;
                 let year = (new Date).getFullYear();
                 $("#year").attr("max", year);
                 if ($scope.update) {
