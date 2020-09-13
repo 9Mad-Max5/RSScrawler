@@ -25,6 +25,16 @@ class RssDb(object):
             "SELECT value FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
         return res[0] if res else None
 
+    def retrieve_wildcard(self, key):
+        res = self._conn.execute(
+            "SELECT value FROM %s WHERE key LIKE'%s'" % (self._table, key)).fetchone()
+        return res[0] if res else None
+
+    def retrieve_key(self, key):
+        res = self._conn.execute(
+            "SELECT key FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
+        return res[0] if res else None
+
     def retrieve_all(self, key):
         res = self._conn.execute(
             "SELECT distinct value FROM %s WHERE key='%s' ORDER BY value" % (self._table, key))
@@ -63,6 +73,11 @@ class RssDb(object):
 
     def delete(self, key):
         self._conn.execute("DELETE FROM %s WHERE key='%s'" %
+                           (self._table, key))
+        self._conn.commit()
+
+    def delete_wildcard(self, key):
+        self._conn.execute("DELETE FROM %s WHERE key LIKE'%s'" %
                            (self._table, key))
         self._conn.commit()
 
