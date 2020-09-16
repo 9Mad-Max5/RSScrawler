@@ -434,7 +434,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function searchNow() {
-        showSuccess('SearchNow');
         $("#spinner-search").fadeIn();
         $scope.currentPage = 0;
         let title = $scope.search;
