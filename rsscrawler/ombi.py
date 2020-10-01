@@ -395,14 +395,14 @@ def ombi(configfile, dbfile, device, log_debug):
                                                 e = "0" + e
                                             se = s + "E" + e
 
-                                            if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
-                                                db.delete(
-                                                    'tvdb_' + str(tvdbid) + '_' + se)
-                                                db.store(
-                                                    'tvdb_' + str(tvdbid) + '_' + se, 'search')
-                                            elif not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
-                                                db.store(
-                                                    'tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                            #if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
+                                            #    db.delete(
+                                            #        'tvdb_' + str(tvdbid) + '_' + se)
+                                            #    db.store(
+                                            #        'tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                            #elif not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                            #    db.store(
+                                            #        'tvdb_' + str(tvdbid) + '_' + se, 'search')
 
                                     print(u"Serie/Staffel/Episode: " +
                                           title + u" durch Ombi hinzugefügt.")
