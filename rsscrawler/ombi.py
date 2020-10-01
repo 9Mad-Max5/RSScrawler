@@ -12,6 +12,7 @@ from rsscrawler.common import encode_base64
 from rsscrawler.common import sanitize
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
+from rsscrawler.db import ListDb
 from rsscrawler.url import get_url_headers
 from rsscrawler.url import post_url_json
 
