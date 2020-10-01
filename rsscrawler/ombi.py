@@ -140,6 +140,8 @@ def ombi(configfile, dbfile, device, log_debug):
     list = RssDb(dbfile, 'MB_Filme')
     # Liste aus dem Log, somit können fehlgeschlagene crawlst widerholt werden
     log = RssDb(dbfile, 'rsscrawler')
+    # Regex Serien für eine bessere suche
+    regex = ListDb(dbfile, 'SJ_Serien_Regex')
 
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
@@ -226,14 +228,14 @@ def ombi(configfile, dbfile, device, log_debug):
                 elif db.retrieve('tmdb_' + str(tmdbid)) == 'search':
                     tmdbtitc = tmdbtitpp.replace(' ', '.')
                     tmdbtitc += '%'
-                    
-                    #Funktioniert nicht das log wird zu aggresiv gelöscht die Dateien werden immer wieder gefetcht
 
-                    #if log.retrieve_wildcard(str(tmdbtitc)) == 'added':
+                    # Funktioniert nicht das log wird zu aggresiv gelöscht die Dateien werden immer wieder gefetcht
+
+                    # if log.retrieve_wildcard(str(tmdbtitc)) == 'added':
                     #    log.delete_wildcard(str(tmdbtitc))
                     #    print(u"Film " + tmdbtitc +
                     #          u" aus der Historie entfernt.")
-                    
+
             elif bool(r.get("available")):
                 # Migration der vorhandenen von added nach available zum angleichen an die neue DB-values
                 if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
@@ -296,25 +298,26 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtitcc = tvdbtitc.replace("'", '')
                                     tvdbtitccc = tvdbtitcc.replace('(', '')
                                     tvdbtitd = tvdbtitccc.replace(')', '')
-                                    tvdbtitd += '.%.'
+                                    tvdbtitd += '.*.'
                                     tvdbtitse = tvdbtitd
                                     tvdbtits = tvdbtitd
                                     tvdbtitse += se
-                                    tvdbtitse += '%'
+                                    tvdbtitse += '.720p.'
+                                    tvdbtitse += '.*'
 
                                     tvdbtits += s
-                                    tvdbtits += '.%'
+                                    tvdbtits += '.720p.'
+                                    tvdbtits += '.*'
 
-                                    #Wie bei Filmen zu aggresiv
-                                    #if log.retrieve_wildcard(str(tvdbtitse)) == 'added':
-                                    #    log.delete_wildcard(str(tvdbtitse))
-                                    #    print(u"Episode " + tvdbtitse +
-                                    #          u" aus der Historie entfernt.")
+                                    if not regex.retrieve(str(tvdbtitse)):
+                                        regex.store(str(tvdbtitse))
+                                        print(u"Episode " + tvdbtitse +
+                                              u" zu Regex hinzugefuegt.")
 
-                                    #if log.retrieve_wildcard(str(tvdbtits)) == 'added':
-                                    #    log.delete_wildcard(str(tvdbtits))
-                                    #    print(u"Staffel " + tvdbtits +
-                                    #          u" aus der Historie entfernt.")
+                                    if not regex.retrieve(str(tvdbtitse)):
+                                        regex.store(str(tvdbtits))
+                                        print(u"Staffel " + tvdbtits +
+                                              u" zu Regex hinzugefuegt.")
 
                         if eps:
                             if not infos:
