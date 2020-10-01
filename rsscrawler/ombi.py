@@ -311,15 +311,15 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtits += '.720p.'
                                     tvdbtits += '.*'
 
-                                    #if not rssregex.retrieve(str(tvdbtitse)):
-                                    #    regex.store(str(tvdbtitse))
-                                    #    print(u"Episode " + tvdbtitse +
-                                    #          u" zu Regex hinzugefuegt.")
+                                    if not rssregex.retrieve_key(str(tvdbtitse)):
+                                        regex.store(str(tvdbtitse))
+                                        print(u"Episode " + tvdbtitse +
+                                              u" zu Regex hinzugefuegt.")
 
-                                    #if not rssregex.retrieve(str(tvdbtitse)):
-                                    #    regex.store(str(tvdbtits))
-                                    #    print(u"Staffel " + tvdbtits +
-                                    #          u" zu Regex hinzugefuegt.")
+                                    if not rssregex.retrieve_key(str(tvdbtitse)):
+                                        regex.store(str(tvdbtits))
+                                        print(u"Staffel " + tvdbtits +
+                                              u" zu Regex hinzugefuegt.")
 
                         if eps:
                             if not infos:
