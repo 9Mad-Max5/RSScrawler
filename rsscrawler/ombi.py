@@ -142,6 +142,7 @@ def ombi(configfile, dbfile, device, log_debug):
     # Liste aus dem Log, somit können fehlgeschlagene crawlst widerholt werden
     log = RssDb(dbfile, 'rsscrawler')
     # Regex Serien für eine bessere suche
+    rssregex = RssDb(dbfile, 'SJ_Serien_Regex')
     regex = ListDb(dbfile, 'SJ_Serien_Regex')
 
     config = RssConfig('Ombi', configfile)
@@ -310,12 +311,12 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtits += '.720p.'
                                     tvdbtits += '.*'
 
-                                    if not regex.retrieve(str(tvdbtitse)):
+                                    if not rssregex.retrieve(str(tvdbtitse)):
                                         regex.store(str(tvdbtitse))
                                         print(u"Episode " + tvdbtitse +
                                               u" zu Regex hinzugefuegt.")
 
-                                    if not regex.retrieve(str(tvdbtitse)):
+                                    if not rssregex.retrieve(str(tvdbtitse)):
                                         regex.store(str(tvdbtits))
                                         print(u"Staffel " + tvdbtits +
                                               u" zu Regex hinzugefuegt.")
