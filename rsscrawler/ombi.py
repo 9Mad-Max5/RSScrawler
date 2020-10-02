@@ -302,12 +302,10 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtitse = tvdbtitd
                                     tvdbtits = tvdbtitd
                                     tvdbtitse += se
-                                    tvdbtitse += '.720p.'
-                                    tvdbtitse += '.*'
+                                    tvdbtitse += '.720p.*'
 
                                     tvdbtits += s
-                                    tvdbtits += '.720p.'
-                                    tvdbtits += '.*'
+                                    tvdbtits += '.720p.*'
 
                                     if not rssregex.retrieve_key(tvdbtitse):
                                         regex.store_key(tvdbtitse)
