@@ -12,7 +12,6 @@ from rsscrawler.common import encode_base64
 from rsscrawler.common import sanitize
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
-from rsscrawler.db import ListDb
 from rsscrawler.url import get_url_headers
 from rsscrawler.url import post_url_json
 
@@ -142,8 +141,7 @@ def ombi(configfile, dbfile, device, log_debug):
     # Liste aus dem Log, somit können fehlgeschlagene crawlst widerholt werden
     log = RssDb(dbfile, 'rsscrawler')
     # Regex Serien für eine bessere suche
-    rssregex = RssDb(dbfile, 'SJ_Serien_Regex')
-    regex = ListDb(dbfile, 'SJ_Serien_Regex')
+    regex = RssDb(dbfile, 'SJ_Serien_Regex')
 
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
@@ -311,15 +309,15 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtits += '.720p.'
                                     tvdbtits += '.*'
 
-                                    #if not rssregex.retrieve_key(tvdbtitse):
-                                    #    regex.store(tvdbtitse)
-                                    #    print(u"Episode " + tvdbtitse +
-                                    #          u" zu Regex hinzugefuegt.")
+                                    if not rssregex.retrieve_key(tvdbtitse):
+                                        regex.store_key(tvdbtitse)
+                                        print(u"Episode " + tvdbtitse +
+                                              u" zu Regex hinzugefuegt.")
 
-                                    #if not rssregex.retrieve_key(tvdbtits):
-                                    #    regex.store(tvdbtits)
-                                    #    print(u"Staffel " + tvdbtits +
-                                    #          u" zu Regex hinzugefuegt.")
+                                    if not rssregex.retrieve_key(tvdbtits):
+                                        regex.store_key(tvdbtits)
+                                        print(u"Staffel " + tvdbtits +
+                                              u" zu Regex hinzugefuegt.")
 
                         if eps:
                             if not infos:

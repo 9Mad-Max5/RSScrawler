@@ -64,6 +64,11 @@ class RssDb(object):
                            (self._table, key, value))
         self._conn.commit()
 
+    def store_key(self, key):
+        self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
+                           (self._table, key))
+        self._conn.commit()
+
     def update_store(self, key, value):
         self._conn.execute("DELETE FROM %s WHERE key='%s'" %
                            (self._table, key))
