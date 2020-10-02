@@ -198,8 +198,7 @@ def ombi(configfile, dbfile, device, log_debug):
 
             # Title aus ombi entnehmen und sonderzeichen entfernen
             tmdbtit = r.get("title")
-            tmdbtitp = tmdbtit.replace(':', '')
-            tmdbtitpp = tmdbtitp.replace(' -', '')
+            tmdbtit = tmdbtit.replace(':', '').replace(' -', '').replace(' ', '.')
 
             if not bool(r.get("available")):
                 # Bedingung um die alte DB struktur zu migrieren
@@ -230,8 +229,7 @@ def ombi(configfile, dbfile, device, log_debug):
                         db.store('tmdb_' + str(tmdbid), 'search')
 
                 elif db.retrieve('tmdb_' + str(tmdbid)) == 'search':
-                    tmdbtitc = tmdbtitpp.replace(' ', '.')
-                    tmdbtitc += '%'
+                    tmdbtit += '%'
 
                     # Funktioniert nicht das log wird zu aggresiv gelöscht die Dateien werden immer wieder gefetcht
 
@@ -298,6 +296,8 @@ def ombi(configfile, dbfile, device, log_debug):
                                     eps.append(enr)
 
                                 if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                    tvdbtitse = tvdbtit
+                                    tvdbtits = tvdbtit
                                     tvdbtitse += se
                                     tvdbtitse += '.*.'
                                     tvdbtitse += sjquality
@@ -439,6 +439,8 @@ def ombi(configfile, dbfile, device, log_debug):
                                     db.store('tvdb_' + str(tvdbid) +
                                              '_' + se, 'available')
 
+                                tvdbtitse = tvdbtit
+                                tvdbtits = tvdbtit
                                 tvdbtitse += se
                                 tvdbtitse += '.*.'
                                 tvdbtitse += sjquality
