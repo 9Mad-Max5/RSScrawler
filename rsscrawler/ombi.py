@@ -141,7 +141,11 @@ def ombi(configfile, dbfile, device, log_debug):
     # Liste aus dem Log, somit können fehlgeschlagene crawlst widerholt werden
     log = RssDb(dbfile, 'rsscrawler')
     # Regex Serien für eine bessere suche
-    regex = RssDb(dbfile, 'SJ_Serien_Regex')
+    sjregexdb = RssDb(dbfile, 'SJ_Serien_Regex')
+    # Settings for Regex search
+    sjfilter = RssConfig('SJ', configfile)
+    sjquality = sjfilter.get('quality')
+    sjregex = sjfilter.get('regex')
 
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
@@ -255,9 +259,10 @@ def ombi(configfile, dbfile, device, log_debug):
     for r in requested_shows:
         tvdbid = r.get("tvDbId")
         tvdbtit = r.get("title")
-        tvdbtitp = tvdbtit.replace(':', '')
-        tvdbtitpp = tvdbtitp.replace(' -', '')
-        tvdbtitppp = tvdbtitpp.replace('!', '')
+        tvdbtit = tvdbtit.replace(':', '').replace(' -', '').replace('!', '').replace(' ', '.').replace("'", '').replace('(', '').replace(')', '')
+        tvdbtit += '.*.'
+        tvdbtitse = tvdbtit
+        tvdbtits = tvdbtit
 
         infos = None
         child_requests = r.get("childRequests")
@@ -292,30 +297,27 @@ def ombi(configfile, dbfile, device, log_debug):
                                              '_' + se, 'search')
                                     eps.append(enr)
 
-                                elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
-
-                                    tvdbtitc = tvdbtitppp.replace(' ', '.')
-                                    tvdbtitcc = tvdbtitc.replace("'", '')
-                                    tvdbtitccc = tvdbtitcc.replace('(', '')
-                                    tvdbtitd = tvdbtitccc.replace(')', '')
-                                    tvdbtitd += '.*.'
-                                    tvdbtitse = tvdbtitd
-                                    tvdbtits = tvdbtitd
+                                if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
                                     tvdbtitse += se
-                                    tvdbtitse += '.720p.*'
+                                    tvdbtitse += '.*.'
+                                    tvdbtitse += sjquality
+                                    tvdbtitse += '.*'
 
                                     tvdbtits += s
-                                    tvdbtits += '.720p.*'
+                                    tvdbtits += '.*.'
+                                    tvdbtits += sjquality
+                                    tvdbtits += '.*'
 
-                                    if not regex.retrieve_key(tvdbtitse):
-                                        regex.store_key(tvdbtitse)
-                                        print(u"Episode " + tvdbtitse +
-                                              u" zu Regex hinzugefuegt.")
+                                    if sjregex == True:
+                                        if not sjregexdb.retrieve_key(tvdbtitse):
+                                            sjregexdb.store_key(tvdbtitse)
+                                            print(u"Episode " + tvdbtitse +
+                                                  u" zu Regex hinzugefuegt.")
 
-                                    if not regex.retrieve_key(tvdbtits):
-                                        regex.store_key(tvdbtits)
-                                        print(u"Staffel " + tvdbtits +
-                                              u" zu Regex hinzugefuegt.")
+                                        if not sjregexdb.retrieve_key(tvdbtits):
+                                            sjregexdb.store_key(tvdbtits)
+                                            print(u"Staffel " + tvdbtits +
+                                                  u" zu Regex hinzugefuegt.")
 
                         if eps:
                             if not infos:
@@ -436,4 +438,25 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'available':
                                     db.store('tvdb_' + str(tvdbid) +
                                              '_' + se, 'available')
+
+                                tvdbtitse += se
+                                tvdbtitse += '.*.'
+                                tvdbtitse += sjquality
+                                tvdbtitse += '.*'
+
+                                tvdbtits += s
+                                tvdbtits += '.*.'
+                                tvdbtits += sjquality
+                                tvdbtits += '.*'
+
+                                if sjregex == True:
+                                    if sjregexdb.retrieve_key(tvdbtitse):
+                                        sjregexdb.delete(tvdbtitse)
+                                        print(u"Episode " + tvdbtitse +
+                                              u" von Regex entfernt.")
+
+                                    if sjregexdb.retrieve_key(tvdbtits):
+                                        sjregexdb.delete(tvdbtits)
+                                        print(u"Staffel " + tvdbtits +
+                                              u" von Regex entfernt.")
     return device
