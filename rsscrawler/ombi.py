@@ -145,6 +145,7 @@ def ombi(configfile, dbfile, device, log_debug):
     # Settings for Regex search
     sjfilter = RssConfig('SJ', configfile)
     sjquality = sjfilter.get('quality')
+    sjquality = sjquality[:-1]
     sjregex = sjfilter.get('regex')
 
     config = RssConfig('Ombi', configfile)
@@ -304,7 +305,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                     tvdbtitse += '.*'
 
                                     tvdbtits += s
-                                    tvdbtits += '.*.'
+                                    tvdbtits += '\..*.'
                                     tvdbtits += sjquality
                                     tvdbtits += '.*'
 
