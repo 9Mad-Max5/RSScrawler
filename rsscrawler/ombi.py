@@ -147,6 +147,12 @@ def ombi(configfile, dbfile, device, log_debug):
     sjquality = sjquality[:-1]
     sjregex = sjfilter.get('regex')
 
+    mbfilter = RssConfig('MB', configfile)
+    mbquality = mbfilter.get('seasonsquality')
+    mbquality = mbquality[:-1]
+    mbregex = mbfilter.get('regex')
+    mbseasons = mbfilter.get('seasonpacks')
+
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
     api = config.get('api')
@@ -194,7 +200,8 @@ def ombi(configfile, dbfile, device, log_debug):
 
             # Title aus ombi entnehmen und sonderzeichen entfernen
             tmdbtit = r.get("title")
-            tmdbtit = tmdbtit.replace(':', '').replace(' -', '').replace(' ', '.')
+            tmdbtit = tmdbtit.replace(':', '').replace(
+                ' -', '').replace(' ', '.')
 
             if not bool(r.get("available")):
                 # Neue Struktur der DB
@@ -241,7 +248,8 @@ def ombi(configfile, dbfile, device, log_debug):
     for r in requested_shows:
         tvdbid = r.get("tvDbId")
         tvdbtit = r.get("title")
-        tvdbtit = tvdbtit.replace(':', '').replace(' -', '').replace('!', '').replace(' ', '.').replace("'", '').replace('(', '').replace(')', '')
+        tvdbtit = tvdbtit.replace(':', '').replace(' -', '').replace('!', '').replace(
+            ' ', '.').replace("'", '').replace('(', '').replace(')', '')
         tvdbtit += '.*.'
         tvdbtitse = tvdbtit
         tvdbtits = tvdbtit
@@ -289,8 +297,12 @@ def ombi(configfile, dbfile, device, log_debug):
 
                                     tvdbtits += s
                                     tvdbtits += '\..*.'
+                                    mbtvdbtits = tvdbtits
                                     tvdbtits += sjquality
                                     tvdbtits += '.*'
+
+                                    mbtvdbtits += mbquality
+                                    mbtvdbtits += '.*'
 
                                     if sjregex == True:
                                         if not sjregexdb.retrieve_key(tvdbtitse):
@@ -300,6 +312,11 @@ def ombi(configfile, dbfile, device, log_debug):
 
                                         if not sjregexdb.retrieve_key(tvdbtits):
                                             sjregexdb.store_key(tvdbtits)
+                                            print(u"Staffel " + tvdbtits +
+                                                  u" zu Regex hinzugefuegt.")
+
+                                    if mbregex == True and mbseasons == True:
+                                        if not mbregexdb.retrieve_key(tvdbtits):
                                             mbregexdb.store_key(tvdbtits)
                                             print(u"Staffel " + tvdbtits +
                                                   u" zu Regex hinzugefuegt.")
@@ -430,9 +447,13 @@ def ombi(configfile, dbfile, device, log_debug):
                                 tvdbtitse += '.*'
 
                                 tvdbtits += s
-                                tvdbtits += '.*.'
+                                tvdbtits += '\..*.'
+                                mbtvdbtits = tvdbtits
                                 tvdbtits += sjquality
                                 tvdbtits += '.*'
+
+                                mbtvdbtits += mbquality
+                                mbtvdbtits += '.*'
 
                                 if sjregex == True:
                                     if sjregexdb.retrieve_key(tvdbtitse):
@@ -442,6 +463,11 @@ def ombi(configfile, dbfile, device, log_debug):
 
                                     if sjregexdb.retrieve_key(tvdbtits):
                                         sjregexdb.delete(tvdbtits)
+                                        print(u"Staffel " + tvdbtits +
+                                              u" von Regex entfernt.")
+
+                                if mbregex == True and mbseasons == True:
+                                    if mbregexdb.retrieve_key(tvdbtits):
                                         mbregexdb.delete(tvdbtits)
                                         print(u"Staffel " + tvdbtits +
                                               u" von Regex entfernt.")
