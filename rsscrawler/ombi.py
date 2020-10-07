@@ -138,10 +138,9 @@ def ombi(configfile, dbfile, device, log_debug):
 
     # Liste der aktive Filmsuchen
     list = RssDb(dbfile, 'MB_Filme')
-    # Liste aus dem Log, somit können fehlgeschlagene crawlst widerholt werden
-    log = RssDb(dbfile, 'rsscrawler')
     # Regex Serien für eine bessere suche
     sjregexdb = RssDb(dbfile, 'SJ_Serien_Regex')
+    mbregexdb = RssDb(dbfile, 'MB_Regex')
     # Settings for Regex search
     sjfilter = RssConfig('SJ', configfile)
     sjquality = sjfilter.get('quality')
@@ -189,10 +188,6 @@ def ombi(configfile, dbfile, device, log_debug):
     for r in requested_movies:
         ombi_movies.append(r.get("theMovieDbId"))
 
-    # for r in ombi_movies:
-    #    print(u"Film: " + ombi_movies[r] + u" ombie_movies.")
-    #    #for j in ombi_movies:
-
     for r in requested_movies:
         if bool(r.get("approved")):
             tmdbid = r.get("theMovieDbId")
@@ -202,9 +197,7 @@ def ombi(configfile, dbfile, device, log_debug):
             tmdbtit = tmdbtit.replace(':', '').replace(' -', '').replace(' ', '.')
 
             if not bool(r.get("available")):
-                # Bedingung um die alte DB struktur zu migrieren
-                # Vorhandene werden auf available gestztet und dann weiter unten aus dem crawler entfernt.
-                # Die anderen heißen nun search und werden wie gehabt behandelt.
+                # Neue Struktur der DB
                 if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
                     db.delete('tmdb_' + str(tmdbid))
                     db.store('tmdb_' + str(tmdbid), 'search')
@@ -228,16 +221,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                 search.download_bl(
                                     best_result, device, configfile, dbfile)
                         db.store('tmdb_' + str(tmdbid), 'search')
-
-                elif db.retrieve('tmdb_' + str(tmdbid)) == 'search':
-                    tmdbtit += '%'
-
-                    # Funktioniert nicht das log wird zu aggresiv gelöscht die Dateien werden immer wieder gefetcht
-
-                    # if log.retrieve_wildcard(str(tmdbtitc)) == 'added':
-                    #    log.delete_wildcard(str(tmdbtitc))
-                    #    print(u"Film " + tmdbtitc +
-                    #          u" aus der Historie entfernt.")
 
             elif bool(r.get("available")):
                 # Migration der vorhandenen von added nach available zum angleichen an die neue DB-values
@@ -317,6 +300,7 @@ def ombi(configfile, dbfile, device, log_debug):
 
                                         if not sjregexdb.retrieve_key(tvdbtits):
                                             sjregexdb.store_key(tvdbtits)
+                                            mbregexdb.store_key(tvdbtits)
                                             print(u"Staffel " + tvdbtits +
                                                   u" zu Regex hinzugefuegt.")
 
@@ -413,9 +397,7 @@ def ombi(configfile, dbfile, device, log_debug):
                         eps = []
                         episodes = season.get("episodes")
                         for episode in episodes:
-
-                            # Händeln der vorhandnen Folgen um sie anschließend zu verwalten ähnlich wie bei den Filmen;
-                            # Noch nicht fertig, bisher nur die neue Values dafür eingebettet
+                            # Datenbank erweiterung
                             if bool(episode.get("available")):
                                 enr = episode.get("episodeNumber")
                                 s = str(sn)
@@ -460,6 +442,7 @@ def ombi(configfile, dbfile, device, log_debug):
 
                                     if sjregexdb.retrieve_key(tvdbtits):
                                         sjregexdb.delete(tvdbtits)
+                                        mbregexdb.delete(tvdbtits)
                                         print(u"Staffel " + tvdbtits +
                                               u" von Regex entfernt.")
     return device
