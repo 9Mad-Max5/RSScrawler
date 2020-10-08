@@ -37,6 +37,27 @@ def mdb(configfile, dbfile, tmdbid, mdb_api, log_debug):
             "Aufgrund fehlerhafter API-Zugangsdaten werden keine Filme aus Ombi importiert.")
         return False
 
+def tv_mdb(configfile, dbfile, tvdbid, mdb_api, log_debug):
+    get_title = get_url_headers(
+        'https://api.themoviedb.org/3/find/' +
+        str(tvdbid) + '?api_key=' + mdb_api + '&language=de-DE&external_source=tvdb_id', configfile,
+        dbfile, headers={'Content-Type': 'application/json'})[0]
+    raw_title = json.loads(get_title.text).get("name")
+    if not raw_title:
+        get_title = get_url_headers(
+            'https://api.themoviedb.org/3/find/' +
+            str(tvdbid) + '?api_key=' + mdb_api +
+            '&language=en-US&external_source=tvdb_id', configfile,
+            dbfile, headers={'Content-Type': 'application/json'})[0]
+        raw_title = json.loads(get_title.text).get("name")
+    if raw_title:
+        title = sanitize(raw_title)
+        return title
+    else:
+        log_debug(
+            "Aufgrund fehlerhafter API-Zugangsdaten werden keine Filme aus Ombi importiert.")
+        return False
+
 
 def get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug):
     db = RssDb(dbfile, 'Ombi')
