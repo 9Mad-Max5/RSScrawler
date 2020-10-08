@@ -284,11 +284,14 @@ def ombi(configfile, dbfile, device, log_debug):
                 if not bool(cr.get("available")):
                     details = cr.get("seasonRequests")
                     for season in details:
+                        # counter for episodes
+                        searchepisodes = 0
                         sn = season.get("seasonNumber")
                         eps = []
                         episodes = season.get("episodes")
                         for episode in episodes:
                             if not bool(episode.get("available")):
+                                searchepisodes = + 1
                                 enr = episode.get("episodeNumber")
                                 s = str(sn)
                                 if len(s) == 1:
@@ -333,16 +336,18 @@ def ombi(configfile, dbfile, device, log_debug):
                                             print(u"Episode " + tvdbtitse +
                                                   u" zu Regex hinzugefuegt.")
 
+                                if searchepisodes >= 2:
+                                    if sjregex == True:
                                         if not sjregexdb.retrieve_key(tvdbtits):
                                             sjregexdb.store_key(tvdbtits)
                                             print(u"Staffel " + tvdbtits +
-                                                  u" zu Regex hinzugefuegt.")
+                                                  u" zu SJ-Regex hinzugefuegt.")
 
                                     if mbregex == True and mbseasons == True:
                                         if not mbregexdb.retrieve_key(tvdbtits):
                                             mbregexdb.store_key(tvdbtits)
                                             print(u"Staffel " + tvdbtits +
-                                                  u" zu Regex hinzugefuegt.")
+                                                  u" zu MB-Regex hinzugefuegt.")
 
                             elif bool(episode.get("available")):
                                 enr = episode.get("episodeNumber")
@@ -391,16 +396,18 @@ def ombi(configfile, dbfile, device, log_debug):
                                         print(u"Episode " + tvdbtitse +
                                               u" von Regex entfernt.")
 
+                            if searchepisodes <= 2:
+                                if sjregex == True:
                                     if sjregexdb.retrieve_key(tvdbtits):
                                         sjregexdb.delete(tvdbtits)
                                         print(u"Staffel " + tvdbtits +
-                                              u" von Regex entfernt.")
+                                              u" von SJ Regex entfernt.")
 
                                 if mbregex == True and mbseasons == True:
                                     if mbregexdb.retrieve_key(tvdbtits):
                                         mbregexdb.delete(tvdbtits)
                                         print(u"Staffel " + tvdbtits +
-                                              u" von Regex entfernt.")
+                                              u" von MB Regex entfernt.")
 
                         if eps:
                             if not infos:
