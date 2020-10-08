@@ -291,7 +291,7 @@ def ombi(configfile, dbfile, device, log_debug):
                         episodes = season.get("episodes")
                         for episode in episodes:
                             if not bool(episode.get("available")):
-                                searchepisodes = + 1
+                                searchepisodes += 1
                                 enr = episode.get("episodeNumber")
                                 s = str(sn)
                                 if len(s) == 1:
