@@ -37,10 +37,12 @@ def mdb(configfile, dbfile, tmdbid, mdb_api, log_debug):
             "Aufgrund fehlerhafter API-Zugangsdaten werden keine Filme aus Ombi importiert.")
         return False
 
+
 def tv_mdb(configfile, dbfile, tvdbid, mdb_api, log_debug):
     get_title = get_url_headers(
         'https://api.themoviedb.org/3/find/' +
-        str(tvdbid) + '?api_key=' + mdb_api + '&language=de-DE&external_source=tvdb_id', configfile,
+        str(tvdbid) + '?api_key=' + mdb_api +
+        '&language=de-DE&external_source=tvdb_id', configfile,
         dbfile, headers={'Content-Type': 'application/json'})[0]
     raw_title = json.loads(get_title.text).get(['tv_results']['name'])
     if not raw_title:
@@ -342,6 +344,64 @@ def ombi(configfile, dbfile, device, log_debug):
                                             print(u"Staffel " + tvdbtits +
                                                   u" zu Regex hinzugefuegt.")
 
+                            elif bool(episode.get("available")):
+                                enr = episode.get("episodeNumber")
+                                s = str(sn)
+                                if len(s) == 1:
+                                    s = "0" + s
+                                s = "S" + s
+                                e = str(enr)
+                                if len(e) == 1:
+                                    e = "0" + e
+                                se = s + "E" + e
+
+                                if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
+                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
+                                    db.store('tvdb_' + str(tvdbid) +
+                                             '_' + se, 'available')
+
+                                elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
+                                    db.store('tvdb_' + str(tvdbid) +
+                                             '_' + se, 'available')
+
+                                if not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'available':
+                                    db.store('tvdb_' + str(tvdbid) +
+                                             '_' + se, 'available')
+
+                                tvdbtitse = tvdbtit
+                                tvdbtits = tvdbtit
+                                tvdbtitse += se
+                                tvdbtitse += '.*.'
+                                tvdbtitse += sjquality
+                                tvdbtitse += '.*'
+
+                                tvdbtits += s
+                                tvdbtits += '\..*.'
+                                mbtvdbtits = tvdbtits
+                                tvdbtits += sjquality
+                                tvdbtits += '.*'
+
+                                mbtvdbtits += mbquality
+                                mbtvdbtits += '.*'
+
+                                if sjregex == True:
+                                    if sjregexdb.retrieve_key(tvdbtitse):
+                                        sjregexdb.delete(tvdbtitse)
+                                        print(u"Episode " + tvdbtitse +
+                                              u" von Regex entfernt.")
+
+                                    if sjregexdb.retrieve_key(tvdbtits):
+                                        sjregexdb.delete(tvdbtits)
+                                        print(u"Staffel " + tvdbtits +
+                                              u" von Regex entfernt.")
+
+                                if mbregex == True and mbseasons == True:
+                                    if mbregexdb.retrieve_key(tvdbtits):
+                                        mbregexdb.delete(tvdbtits)
+                                        print(u"Staffel " + tvdbtits +
+                                              u" von Regex entfernt.")
+
                         if eps:
                             if not infos:
                                 infos = tvdb(
@@ -428,7 +488,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                     print(u"Serie/Staffel/Episode: " +
                                           title + u" durch Ombi hinzugefügt.")
 
-                elif bool(cr.get("available")):
+                else:
                     details = cr.get("seasonRequests")
                     for season in details:
                         sn = season.get("seasonNumber")
