@@ -42,14 +42,14 @@ def tv_mdb(configfile, dbfile, tvdbid, mdb_api, log_debug):
         'https://api.themoviedb.org/3/find/' +
         str(tvdbid) + '?api_key=' + mdb_api + '&language=de-DE&external_source=tvdb_id', configfile,
         dbfile, headers={'Content-Type': 'application/json'})[0]
-    raw_title = json.loads(get_title.text).get("name")
+    raw_title = json.loads(get_title.text).get(['tv_results']['name'])
     if not raw_title:
         get_title = get_url_headers(
             'https://api.themoviedb.org/3/find/' +
             str(tvdbid) + '?api_key=' + mdb_api +
             '&language=en-US&external_source=tvdb_id', configfile,
             dbfile, headers={'Content-Type': 'application/json'})[0]
-        raw_title = json.loads(get_title.text).get("name")
+        raw_title = json.loads(get_title.text).get(['tv_results']['name'])
     if raw_title:
         title = sanitize(raw_title)
         return title
