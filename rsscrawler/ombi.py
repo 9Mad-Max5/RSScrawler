@@ -336,7 +336,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                             print(u"Episode " + tvdbtitse +
                                                   u" zu Regex hinzugefuegt.")
 
-                                if searchepisodes >= 2:
+                                if searchepisodes > 3:
                                     if sjregex == True:
                                         if not sjregexdb.retrieve_key(tvdbtits):
                                             sjregexdb.store_key(tvdbtits)
@@ -396,7 +396,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                         print(u"Episode " + tvdbtitse +
                                               u" von Regex entfernt.")
 
-                            if searchepisodes <= 2:
+                            if searchepisodes < 2:
                                 if sjregex == True:
                                     if sjregexdb.retrieve_key(tvdbtits):
                                         sjregexdb.delete(tvdbtits)
