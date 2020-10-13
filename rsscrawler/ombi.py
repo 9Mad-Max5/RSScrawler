@@ -129,13 +129,13 @@ def ombi(configfile, dbfile, device, log_debug):
 
     for r in requested_movies:
         if bool(r.get("approved")):
+            imdb_id = r.get("imdbId")
             # Title aus ombi entnehmen und sonderzeichen entfernen
             movie_tit = r.get("title")
             movie_tit = movie_tit.replace(':', '').replace(
                 ' -', '').replace(' ', '.')
 
             if not bool(r.get("available")):
-                imdb_id = r.get("imdbId")
                 # Neue Struktur der DB
                 if db.retrieve('movie_' + str(imdb_id)) == 'added':
                     db.delete('movie_' + str(imdb_id))
