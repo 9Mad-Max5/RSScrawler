@@ -419,7 +419,7 @@ def ombi(configfile, dbfile, device, log_debug):
                         eps = []
                         episodes = season.get("episodes")
                         for episode in episodes:
-                            # Datenbank erweiterung
+                            # Datenbank erweiterung ok
                             if bool(episode.get("available")):
                                 enr = episode.get("episodeNumber")
                                 s = str(sn)
