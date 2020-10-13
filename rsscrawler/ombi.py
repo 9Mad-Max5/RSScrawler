@@ -187,7 +187,7 @@ def ombi(configfile, dbfile, device, log_debug):
         show_tit = r.get("title")
         show_tit = show_tit.replace(':', '').replace(' -', '').replace('!', '').replace(
             ' ', '.').replace("'", '').replace('(', '').replace(')', '')
-        show_tit += '.*.'
+        show_tit += '\..*.'
         show_titse = show_tit
         show_tits = show_tit
 
