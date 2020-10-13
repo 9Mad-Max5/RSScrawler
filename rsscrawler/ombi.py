@@ -3,8 +3,10 @@
 # Projekt von https://github.com/rix1337
 
 import json
+import re
 
 import requests
+from bs4 import BeautifulSoup
 
 from rsscrawler import search
 from rsscrawler.common import decode_base64
@@ -13,147 +15,74 @@ from rsscrawler.common import sanitize
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
 from rsscrawler.url import get_url_headers
-from rsscrawler.url import post_url_json
 
 
-def mdb(configfile, dbfile, tmdbid, mdb_api, log_debug):
-    get_title = get_url_headers(
-        'https://api.themoviedb.org/3/movie/' +
-        str(tmdbid) + '?api_key=' + mdb_api + '&language=de-DE', configfile,
-        dbfile, headers={'Content-Type': 'application/json'})[0]
-    raw_title = json.loads(get_title.text).get("title")
-    if not raw_title:
-        get_title = get_url_headers(
-            'https://api.themoviedb.org/3/movie/' +
-            str(tmdbid) + '?api_key=' + mdb_api +
-            '&language=en-US', configfile,
-            dbfile, headers={'Content-Type': 'application/json'})[0]
-        raw_title = json.loads(get_title.text).get("title")
-    if raw_title:
-        title = sanitize(raw_title)
-        return title
-    else:
-        log_debug(
-            "Aufgrund fehlerhafter API-Zugangsdaten werden keine Filme aus Ombi importiert.")
-        return False
+def get_imdb(url, configfile, dbfile, scraper):
+    result = get_url_headers(url, configfile, dbfile,
+                             scraper=scraper,
+                             headers={'Accept-Language': 'de'}
+                             )
+    output = result[0].text
+    scraper = result[1]
+    return output, scraper
 
 
-def tv_mdb(configfile, dbfile, tvdbid, mdb_api, log_debug):
-    get_title = get_url_headers(
-        'https://api.themoviedb.org/3/find/' +
-        str(tvdbid) + '?api_key=' + mdb_api +
-        '&language=de-DE&external_source=tvdb_id', configfile,
-        dbfile, headers={'Content-Type': 'application/json'})[0]
-    raw_title = json.loads(get_title.text).get(['tv_results']['name'])
-    if not raw_title:
-        get_title = get_url_headers(
-            'https://api.themoviedb.org/3/find/' +
-            str(tvdbid) + '?api_key=' + mdb_api +
-            '&language=en-US&external_source=tvdb_id', configfile,
-            dbfile, headers={'Content-Type': 'application/json'})[0]
-        raw_title = json.loads(get_title.text).get(['tv_results']['name'])
-    if raw_title:
-        title = sanitize(raw_title)
-        return title
-    else:
-        log_debug(
-            "Aufgrund fehlerhafter API-Zugangsdaten werden keine Filme aus Ombi importiert.")
-        return False
+def get_title(input):
+    try:
+        raw_title = re.findall(
+            r"<title>(.*) \((?:.*(?:19|20)\d{2})\) - IMDb</title>", input)[0]
+    except:
+        raw_title = re.findall(
+            r'<meta name="title" content="(.*) \((?:.*(?:19|20)\d{2})\) - IMDb"', input)[0]
+    return sanitize(raw_title)
 
 
-def get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug):
-    db = RssDb(dbfile, 'Ombi')
-    response = post_url_json("https://api.thetvdb.com/login", configfile, dbfile, json={
-        'username': tvd_user,
-        'userkey': tvd_userkey,
-        'apikey': tvd_api,
-    })
-    if response:
-        response = json.loads(response)
-        token = response.get('token')
-        db.delete("tvdb_token")
-        db.store("tvdb_token", token)
+def imdb_movie(imdb_id, configfile, dbfile, scraper):
+    try:
+        result = get_imdb('https://www.imdb.com/title/' +
+                          imdb_id, configfile, dbfile, scraper)
+        output = result[0]
+        scraper = result[1]
 
-        if token:
-            return token
-    else:
-        log_debug(
-            "Aufgrund fehlerhafter API-Zugangsdaten werden keine Serien aus Ombi importiert.")
-        return False
+        title = get_title(output)
+
+        return title, scraper
+    except:
+        print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+        return False, False
 
 
-def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug):
-    db = RssDb(dbfile, 'Ombi')
-    token = db.retrieve('tvdb_token')
+def imdb_show(imdb_id, configfile, dbfile, scraper):
+    try:
+        result = get_imdb('https://www.imdb.com/title/' +
+                          imdb_id, configfile, dbfile, scraper)
+        output = result[0]
+        scraper = result[1]
 
-    if not token:
-        token = get_tvdb_token(configfile, dbfile, tvd_user,
-                               tvd_userkey, tvd_api, log_debug)
+        title = get_title(output)
 
-    if token:
-        get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
-                                   headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                            'Accept': 'application/json', 'Accept-Language': 'de'})[0]
+        eps = {}
+        soup = BeautifulSoup(output, 'lxml')
+        seasons = soup.find_all("a", href=re.compile(
+            r'.*/title/' + imdb_id + r'/episodes\?season=.*'))
+        for season in seasons:
+            result = get_imdb("https://www.imdb.com" +
+                              season['href'], configfile, dbfile, scraper)
+            output = result[0]
+            scraper = result[1]
 
-        if get_info.status_code == 401:
-            token = get_tvdb_token(
-                configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug)
-            if token:
-                get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
-                                           headers={'Authorization': 'Bearer ' + token,
-                                                    'Content-Type': 'application/json',
-                                                    'Accept': 'application/json', 'Accept-Language': 'de'})[0]
-            else:
-                return False
-
-        raw_data = json.loads(get_info.text)
-        raw_info = raw_data.get('data')
-        raw_title = raw_info.get('seriesName')
-        if not raw_title:
-            get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
-                                       headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                                'Accept': 'application/json', 'Accept-Language': 'en'})[0]
-            raw_data = json.loads(get_info.text)
-            raw_info = raw_data.get('data')
-            raw_title = raw_info.get('seriesName')
-        title = sanitize(raw_title)
-        get_episodes = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid) + '/episodes', configfile,
-                                       dbfile,
-                                       headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                                'Accept': 'application/json', 'Accept-Language': 'de'})[0]
-        raw_episode_data = json.loads(get_episodes.text)
-        episodes = raw_episode_data.get('data')
-        total_pages = raw_episode_data.get('links')
-        if total_pages:
-            pages = total_pages.get('last')
-            if pages > 1:
-                page = 2
-                while page <= pages:
-                    get_episodes = get_url_headers(
-                        'https://api.thetvdb.com/series/' +
-                        str(tvdbid) + '/episodes?page=' +
-                        str(page), configfile,
-                        dbfile,
-                        headers={'Authorization': 'Bearer ' + token,
-                                 'Content-Type': 'application/json',
-                                 'Accept': 'application/json', 'Accept-Language': 'de'})[0]
-                    raw_episode_data = json.loads(get_episodes.text)
-                    more_episodes = raw_episode_data.get('data')
-                    episodes = episodes + more_episodes
-                    page += 1
-            eps = {}
+            sn = int(season.text)
+            ep = []
+            soup = BeautifulSoup(output, 'lxml')
+            episodes = soup.find_all("meta", itemprop="episodeNumber")
             for e in episodes:
-                season = e.get("airedSeason")
-                if season > 0:
-                    episode = e.get("airedEpisodeNumber")
-                    current = eps.get(season)
-                    if current:
-                        eps[season] = current + [episode]
-                    else:
-                        eps[season] = [episode]
-            return title, eps
-        return title, False
-    return False
+                ep.append(int(e['content']))
+            eps[sn] = ep
+
+        return title, eps, scraper
+    except:
+        print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+        return False, False, False
 
 
 def ombi(configfile, dbfile, device, log_debug):
@@ -183,58 +112,40 @@ def ombi(configfile, dbfile, device, log_debug):
     if not url or not api:
         return device
 
-    mdb_api = config.get('mdb_api')
-    tvd_api = config.get('tvd_api')
-    tvd_user = config.get('tvd_user')
-    tvd_userkey = config.get('tvd_userkey')
     english = RssConfig('RSScrawler', configfile).get('english')
 
     try:
-        if mdb_api:
-            requested_movies = requests.get(
-                url + '/api/v1/Request/movie', headers={'ApiKey': api})
-            requested_movies = json.loads(requested_movies.text)
-        else:
-            requested_movies = []
-            log_debug(
-                "Aufgrund fehlender API-Zugangsdaten werden keine Filme aus Ombi importiert.")
-        if tvd_api and tvd_user and tvd_userkey:
-            requested_shows = requests.get(
-                url + '/api/v1/Request/tv', headers={'ApiKey': api})
-            requested_shows = json.loads(requested_shows.text)
-        else:
-            requested_shows = []
-            log_debug(
-                "Aufgrund fehlender API-Zugangsdaten werden keine Serien aus Ombi importiert.")
+        requested_movies = requests.get(
+            url + '/api/v1/Request/movie', headers={'ApiKey': api})
+        requested_movies = json.loads(requested_movies.text)
+        requested_shows = requests.get(
+            url + '/api/v1/Request/tv', headers={'ApiKey': api})
+        requested_shows = json.loads(requested_shows.text)
     except:
         log_debug("Ombi ist nicht erreichbar!")
         return False
 
-    stored_movies = []
-    stored_movies = db.retrieve_all('tmdb_%' == '%')
-
-    ombi_movies = []
-    for r in requested_movies:
-        ombi_movies.append(r.get("theMovieDbId"))
+    scraper = False
 
     for r in requested_movies:
         if bool(r.get("approved")):
-            tmdbid = r.get("theMovieDbId")
-
             # Title aus ombi entnehmen und sonderzeichen entfernen
-            tmdbtit = r.get("title")
-            tmdbtit = tmdbtit.replace(':', '').replace(
+            movie_tit = r.get("title")
+            movie_tit = movie_tit.replace(':', '').replace(
                 ' -', '').replace(' ', '.')
 
             if not bool(r.get("available")):
+                imdb_id = r.get("imdbId")
                 # Neue Struktur der DB
-                if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
-                    db.delete('tmdb_' + str(tmdbid))
-                    db.store('tmdb_' + str(tmdbid), 'search')
+                if db.retrieve('movie_' + str(imdb_id)) == 'added':
+                    db.delete('movie_' + str(imdb_id))
+                    db.store('movie_' + str(imdb_id), 'search')
 
-                elif not db.retrieve('tmdb_' + str(tmdbid)) == 'search':
-                    title = mdb(configfile, dbfile, tmdbid, mdb_api, log_debug)
+                elif not db.retrieve('movie_' + str(imdb_id)) == 'search':
+                    response = imdb_movie(imdb_id, configfile, dbfile, scraper)
+                    title = response[0]
                     if title:
+                        scraper = response[1]
                         best_result = search.best_result_bl(
                             title, configfile, dbfile)
                         print(u"Film: " + title + u" durch Ombi hinzugefügt.")
@@ -250,32 +161,35 @@ def ombi(configfile, dbfile, device, log_debug):
                             if best_result:
                                 search.download_bl(
                                     best_result, device, configfile, dbfile)
-                        db.store('tmdb_' + str(tmdbid), 'search')
+                        db.store('movie_' + str(imdb_id), 'search')
+                    else:
+                        log_debug(
+                            "Titel für IMDB-ID nicht abrufbar: " + imdb_id)
 
             elif bool(r.get("available")):
                 # Migration der vorhandenen von added nach available zum angleichen an die neue DB-values
-                if db.retrieve('tmdb_' + str(tmdbid)) == 'added':
-                    db.delete('tmdb_' + str(tmdbid))
-                    db.store('tmdb_' + str(tmdbid), 'available')
+                if db.retrieve('movie_' + str(imdb_id)) == 'added':
+                    db.delete('movie_' + str(imdb_id))
+                    db.store('movie_' + str(imdb_id), 'available')
 
-                if db.retrieve('tmdb_' + str(tmdbid)) == 'search':
-                    db.delete('tmdb_' + str(tmdbid))
-                    db.store('tmdb_' + str(tmdbid), 'available')
+                if db.retrieve('movie_' + str(imdb_id)) == 'search':
+                    db.delete('movie_' + str(imdb_id))
+                    db.store('movie_' + str(imdb_id), 'available')
 
-                if not db.retrieve('tmdb_' + str(tmdbid)) == 'available':
-                    db.store('tmdb_' + str(tmdbid), 'available')
+                if not db.retrieve('movie_' + str(imdb_id)) == 'available':
+                    db.store('movie_' + str(imdb_id), 'available')
 
-                if list.retrieve_key(str(tmdbtit)):
-                    list.delete(str(tmdbtit))
+                if list.retrieve_key(str(movie_tit)):
+                    list.delete(str(movie_tit))
 
     for r in requested_shows:
-        tvdbid = r.get("tvDbId")
-        tvdbtit = r.get("title")
-        tvdbtit = tvdbtit.replace(':', '').replace(' -', '').replace('!', '').replace(
+        imdb_id = r.get("imdbId")
+        show_tit = r.get("title")
+        show_tit = show_tit.replace(':', '').replace(' -', '').replace('!', '').replace(
             ' ', '.').replace("'", '').replace('(', '').replace(')', '')
-        tvdbtit += '.*.'
-        tvdbtitse = tvdbtit
-        tvdbtits = tvdbtit
+        show_tit += '.*.'
+        show_titse = show_tit
+        show_tits = show_tit
 
         infos = None
         child_requests = r.get("childRequests")
@@ -302,51 +216,52 @@ def ombi(configfile, dbfile, device, log_debug):
                                     e = "0" + e
                                 se = s + "E" + e
 
-                                if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
-                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
-                                    db.store('tvdb_' + str(tvdbid) +
+                                if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'added':
+                                    db.delete(
+                                        'show_' + str(imdb_id) + '_' + se)
+                                    db.store('show_' + str(imdb_id) +
                                              '_' + se, 'search')
                                     eps.append(enr)
 
-                                elif not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
-                                    db.store('tvdb_' + str(tvdbid) +
+                                elif not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
+                                    db.store('show_' + str(imdb_id) +
                                              '_' + se, 'search')
                                     eps.append(enr)
 
-                                if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
-                                    tvdbtitse = tvdbtit
-                                    tvdbtits = tvdbtit
-                                    tvdbtitse += se
-                                    tvdbtitse += '.*.'
-                                    tvdbtitse += sjquality
-                                    tvdbtitse += '.*'
+                                if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
+                                    show_titse = show_tit
+                                    show_tits = show_tit
+                                    show_titse += se
+                                    show_titse += '.*.'
+                                    show_titse += sjquality
+                                    show_titse += '.*'
 
-                                    tvdbtits += s
-                                    tvdbtits += '\..*.'
-                                    mbtvdbtits = tvdbtits
-                                    tvdbtits += sjquality
-                                    tvdbtits += '.*'
+                                    show_tits += s
+                                    show_tits += '\..*.'
+                                    mbshow_tits = show_tits
+                                    show_tits += sjquality
+                                    show_tits += '.*'
 
-                                    mbtvdbtits += mbquality
-                                    mbtvdbtits += '.*'
+                                    mbshow_tits += mbquality
+                                    mbshow_tits += '.*'
 
                                     if sjregex == True:
-                                        if not sjregexdb.retrieve_key(tvdbtitse):
-                                            sjregexdb.store_key(tvdbtitse)
-                                            print(u"Episode " + tvdbtitse +
+                                        if not sjregexdb.retrieve_key(show_titse):
+                                            sjregexdb.store_key(show_titse)
+                                            print(u"Episode " + show_titse +
                                                   u" zu Regex hinzugefuegt.")
 
                                 if searchepisodes > 3:
                                     if sjregex == True:
-                                        if not sjregexdb.retrieve_key(tvdbtits):
-                                            sjregexdb.store_key(tvdbtits)
-                                            print(u"Staffel " + tvdbtits +
+                                        if not sjregexdb.retrieve_key(show_tits):
+                                            sjregexdb.store_key(show_tits)
+                                            print(u"Staffel " + show_tits +
                                                   u" zu SJ-Regex hinzugefuegt.")
 
                                     if mbregex == True and mbseasons == True:
-                                        if not mbregexdb.retrieve_key(tvdbtits):
-                                            mbregexdb.store_key(tvdbtits)
-                                            print(u"Staffel " + tvdbtits +
+                                        if not mbregexdb.retrieve_key(show_tits):
+                                            mbregexdb.store_key(show_tits)
+                                            print(u"Staffel " + show_tits +
                                                   u" zu MB-Regex hinzugefuegt.")
 
                             elif bool(episode.get("available")):
@@ -360,66 +275,68 @@ def ombi(configfile, dbfile, device, log_debug):
                                     e = "0" + e
                                 se = s + "E" + e
 
-                                if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
-                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
-                                    db.store('tvdb_' + str(tvdbid) +
+                                if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'added':
+                                    db.delete(
+                                        'show_' + str(imdb_id) + '_' + se)
+                                    db.store('show_' + str(imdb_id) +
                                              '_' + se, 'available')
 
-                                elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
-                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
-                                    db.store('tvdb_' + str(tvdbid) +
+                                elif db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
+                                    db.delete(
+                                        'show_' + str(imdb_id) + '_' + se)
+                                    db.store('show_' + str(imdb_id) +
                                              '_' + se, 'available')
 
-                                if not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'available':
-                                    db.store('tvdb_' + str(tvdbid) +
+                                if not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'available':
+                                    db.store('show_' + str(imdb_id) +
                                              '_' + se, 'available')
 
-                                tvdbtitse = tvdbtit
-                                tvdbtits = tvdbtit
-                                tvdbtitse += se
-                                tvdbtitse += '.*.'
-                                tvdbtitse += sjquality
-                                tvdbtitse += '.*'
+                                show_titse = show_tit
+                                show_tits = show_tit
+                                show_titse += se
+                                show_titse += '.*.'
+                                show_titse += sjquality
+                                show_titse += '.*'
 
-                                tvdbtits += s
-                                tvdbtits += '\..*.'
-                                mbtvdbtits = tvdbtits
-                                tvdbtits += sjquality
-                                tvdbtits += '.*'
+                                show_tits += s
+                                show_tits += '\..*.'
+                                mbshow_tits = show_tits
+                                show_tits += sjquality
+                                show_tits += '.*'
 
-                                mbtvdbtits += mbquality
-                                mbtvdbtits += '.*'
+                                mbshow_tits += mbquality
+                                mbshow_tits += '.*'
 
                                 if sjregex == True:
-                                    if sjregexdb.retrieve_key(tvdbtitse):
-                                        sjregexdb.delete(tvdbtitse)
-                                        print(u"Episode " + tvdbtitse +
+                                    if sjregexdb.retrieve_key(show_titse):
+                                        sjregexdb.delete(show_titse)
+                                        print(u"Episode " + show_titse +
                                               u" von Regex entfernt.")
 
                             if searchepisodes < 2:
                                 if sjregex == True:
-                                    if sjregexdb.retrieve_key(tvdbtits):
-                                        sjregexdb.delete(tvdbtits)
-                                        print(u"Staffel " + tvdbtits +
+                                    if sjregexdb.retrieve_key(show_tits):
+                                        sjregexdb.delete(show_tits)
+                                        print(u"Staffel " + show_tits +
                                               u" von SJ Regex entfernt.")
 
                                 if mbregex == True and mbseasons == True:
-                                    if mbregexdb.retrieve_key(tvdbtits):
-                                        mbregexdb.delete(tvdbtits)
-                                        print(u"Staffel " + tvdbtits +
+                                    if mbregexdb.retrieve_key(show_tits):
+                                        mbregexdb.delete(show_tits)
+                                        print(u"Staffel " + show_tits +
                                               u" von MB Regex entfernt.")
 
                         if eps:
                             if not infos:
-                                infos = tvdb(
-                                    configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug)
+                                infos = imdb_show(
+                                    imdb_id, configfile, dbfile, scraper)
                             if infos:
                                 title = infos[0]
                                 all_eps = infos[1]
+                                scraper = infos[2]
+                                check_sn = False
                                 if all_eps:
                                     check_sn = all_eps.get(sn)
-                                else:
-                                    check_sn = False
                                 if check_sn:
                                     sn_length = len(eps)
                                     check_sn_length = len(check_sn)
@@ -451,22 +368,22 @@ def ombi(configfile, dbfile, device, log_debug):
                                                             e = "0" + e
                                                         se = s + "E" + e
 
-                                                        if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
+                                                        if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'added':
                                                             db.delete(
-                                                                'tvdb_' + str(tvdbid) + '_' + se)
+                                                                'show_' + str(imdb_id) + '_' + se)
                                                             db.store(
-                                                                'tvdb_' + str(tvdbid) + '_' + se, 'search')
-                                                        elif not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                                                'show_' + str(imdb_id) + '_' + se, 'search')
+                                                        elif not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
                                                             db.store(
-                                                                'tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                                                'show_' + str(imdb_id) + '_' + se, 'search')
 
                                                     if not add_season:
                                                         log_debug(
                                                             u"Konnte kein Release für " + title + " " + se + "finden.")
                                                     break
-                                            if not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                            if not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
                                                 db.store(
-                                                    'tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                                    'show_' + str(imdb_id) + '_' + se, 'search')
                                     else:
                                         payload = search.best_result_sj(
                                             title, configfile, dbfile)
@@ -483,14 +400,14 @@ def ombi(configfile, dbfile, device, log_debug):
                                                 e = "0" + e
                                             se = s + "E" + e
 
-                                            if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
+                                            if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'added':
                                                 db.delete(
-                                                    'tvdb_' + str(tvdbid) + '_' + se)
+                                                    'show_' + str(imdb_id) + '_' + se)
                                                 db.store(
-                                                    'tvdb_' + str(tvdbid) + '_' + se, 'search')
-                                            elif not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
+                                                    'show_' + str(imdb_id) + '_' + se, 'search')
+                                            elif not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
                                                 db.store(
-                                                    'tvdb_' + str(tvdbid) + '_' + se, 'search')
+                                                    'show_' + str(imdb_id) + '_' + se, 'search')
 
                                     print(u"Serie/Staffel/Episode: " +
                                           title + u" durch Ombi hinzugefügt.")
@@ -513,50 +430,52 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if len(e) == 1:
                                     e = "0" + e
                                 se = s + "E" + e
-                                if db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
-                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
-                                    db.store('tvdb_' + str(tvdbid) +
+                                if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'added':
+                                    db.delete(
+                                        'show_' + str(imdb_id) + '_' + se)
+                                    db.store('show_' + str(imdb_id) +
                                              '_' + se, 'available')
 
-                                elif db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'search':
-                                    db.delete('tvdb_' + str(tvdbid) + '_' + se)
-                                    db.store('tvdb_' + str(tvdbid) +
+                                elif db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
+                                    db.delete(
+                                        'show_' + str(imdb_id) + '_' + se)
+                                    db.store('show_' + str(imdb_id) +
                                              '_' + se, 'available')
 
-                                if not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'available':
-                                    db.store('tvdb_' + str(tvdbid) +
+                                if not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'available':
+                                    db.store('show_' + str(imdb_id) +
                                              '_' + se, 'available')
 
-                                tvdbtitse = tvdbtit
-                                tvdbtits = tvdbtit
-                                tvdbtitse += se
-                                tvdbtitse += '.*.'
-                                tvdbtitse += sjquality
-                                tvdbtitse += '.*'
+                                show_titse = show_tit
+                                show_tits = show_tit
+                                show_titse += se
+                                show_titse += '.*.'
+                                show_titse += sjquality
+                                show_titse += '.*'
 
-                                tvdbtits += s
-                                tvdbtits += '\..*.'
-                                mbtvdbtits = tvdbtits
-                                tvdbtits += sjquality
-                                tvdbtits += '.*'
+                                show_tits += s
+                                show_tits += '\..*.'
+                                mbshow_tits = show_tits
+                                show_tits += sjquality
+                                show_tits += '.*'
 
-                                mbtvdbtits += mbquality
-                                mbtvdbtits += '.*'
+                                mbshow_tits += mbquality
+                                mbshow_tits += '.*'
 
                                 if sjregex == True:
-                                    if sjregexdb.retrieve_key(tvdbtitse):
-                                        sjregexdb.delete(tvdbtitse)
-                                        print(u"Episode " + tvdbtitse +
+                                    if sjregexdb.retrieve_key(show_titse):
+                                        sjregexdb.delete(show_titse)
+                                        print(u"Episode " + show_titse +
                                               u" von Regex entfernt.")
 
-                                    if sjregexdb.retrieve_key(tvdbtits):
-                                        sjregexdb.delete(tvdbtits)
-                                        print(u"Staffel " + tvdbtits +
+                                    if sjregexdb.retrieve_key(show_tits):
+                                        sjregexdb.delete(show_tits)
+                                        print(u"Staffel " + show_tits +
                                               u" von Regex entfernt.")
 
                                 if mbregex == True and mbseasons == True:
-                                    if mbregexdb.retrieve_key(tvdbtits):
-                                        mbregexdb.delete(tvdbtits)
-                                        print(u"Staffel " + tvdbtits +
+                                    if mbregexdb.retrieve_key(show_tits):
+                                        mbregexdb.delete(show_tits)
+                                        print(u"Staffel " + show_tits +
                                               u" von Regex entfernt.")
     return device
