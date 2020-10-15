@@ -245,10 +245,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                     mbshow_tits += mbquality
                                     mbshow_tits += '.*'
 
-                                    infos = imdb_show(
-                                        imdb_id, configfile, dbfile, scraper)
-                                    print(u"Info " + infos[0])
-
                                 if sjregex == True:
                                     if not sjregexdb.retrieve_key(show_titse):
                                         sjregexdb.store_key(show_titse)
