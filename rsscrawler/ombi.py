@@ -220,7 +220,7 @@ def ombi(configfile, dbfile, device, log_debug):
                         s = str(sn)
                         if len(s) == 1:
                             s = "0" + s
-                            s = "S" + s
+                        s = "S" + s
                         show_tits = generate_reg_title(
                             show_tit, s, sjquality)
                         mbshow_tits = generate_reg_title(
