@@ -325,6 +325,8 @@ def ombi(configfile, dbfile, device, log_debug):
                                     mbregexdb.store_key(show_tits)
                                     print(u"Staffel " + show_tits +
                                           u" zu MB-Regex hinzugefuegt.")
+                        
+                        searchepisodes = 0
 
                         if eps:
                             if not infos:
