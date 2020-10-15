@@ -228,7 +228,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                              '_' + se, 'search')
                                     eps.append(enr)
 
-                                if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
+                                elif db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
                                     show_titse = show_tit
                                     show_tits = show_tit
                                     show_titse += se
@@ -274,7 +274,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                     db.store('show_' + str(imdb_id) +
                                              '_' + se, 'available')
 
-                                if not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'available':
+                                elif not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'available':
                                     db.store('show_' + str(imdb_id) +
                                              '_' + se, 'available')
 
@@ -444,7 +444,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                     db.store('show_' + str(imdb_id) +
                                              '_' + se, 'available')
 
-                                if not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'available':
+                                elif not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'available':
                                     db.store('show_' + str(imdb_id) +
                                              '_' + se, 'available')
 
