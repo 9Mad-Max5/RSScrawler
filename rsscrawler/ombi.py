@@ -228,7 +228,8 @@ def ombi(configfile, dbfile, device, log_debug):
                                              '_' + se, 'search')
                                     eps.append(enr)
 
-                                if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
+                                elif db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
+                                    eps.append(enr)
                                     show_titse = show_tit
                                     show_tits = show_tit
                                     show_titse += se
@@ -250,7 +251,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                             sjregexdb.store_key(show_titse)
                                             print(u"Episode " + show_titse +
                                                   u" zu Regex hinzugefuegt.")
-                                    eps.append(enr)
 
                             elif bool(episode.get("available")):
                                 enr = episode.get("episodeNumber")
@@ -351,8 +351,8 @@ def ombi(configfile, dbfile, device, log_debug):
                                             se = s + "E" + e
                                             payload = search.best_result_sj(
                                                 title, configfile, dbfile)
-                                            print(u"Episode " + payload +
-                                                  u" zu Regex hinzugefuegt.")
+                                            print(u"Payload " + payload +
+                                                  u" ausgabe")
                                             if payload:
                                                 payload = decode_base64(
                                                     payload).split("|")
