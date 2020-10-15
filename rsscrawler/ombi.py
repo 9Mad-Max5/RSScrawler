@@ -246,6 +246,10 @@ def ombi(configfile, dbfile, device, log_debug):
                                     mbshow_tits += '.*'
 
                                     if sjregex == True:
+                                        payload = search.best_result_sj(
+                                                show_titse, configfile, dbfile)
+                                        print(u"Payload " + payload +
+                                              u" ausgabe.")
                                         if not sjregexdb.retrieve_key(show_titse):
                                             sjregexdb.store_key(show_titse)
                                             print(u"Episode " + show_titse +
@@ -297,10 +301,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if sjregex == True:
                                     if sjregexdb.retrieve_key(show_titse):
                                         sjregexdb.delete(show_titse)
-                                        payload = search.best_result_sj(
-                                                show_titse, configfile, dbfile)
-                                        print(u"Payload " + payload +
-                                              u" ausgabe.")
                                         print(u"Episode " + show_titse +
                                               u" von Regex entfernt.")
 
