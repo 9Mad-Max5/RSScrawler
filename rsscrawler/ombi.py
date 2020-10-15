@@ -326,7 +326,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                     mbregexdb.store_key(show_tits)
                                     print(u"Staffel " + show_tits +
                                           u" zu MB-Regex hinzugefuegt.")
-                        
+
                         searchepisodes = 0
 
                         if eps:
@@ -351,7 +351,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                             se = s + "E" + e
                                             payload = search.best_result_sj(
                                                 title, configfile, dbfile)
-                                                print(u"Episode " + payload +
+                                            print(u"Episode " + payload +
                                                   u" zu Regex hinzugefuegt.")
                                             if payload:
                                                 payload = decode_base64(
