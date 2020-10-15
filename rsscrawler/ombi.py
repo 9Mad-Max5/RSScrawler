@@ -228,8 +228,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                              '_' + se, 'search')
                                     eps.append(enr)
 
-                                elif db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
-                                    eps.append(enr)
+                                if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
                                     show_titse = show_tit
                                     show_tits = show_tit
                                     show_titse += se
@@ -326,7 +325,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                     mbregexdb.store_key(show_tits)
                                     print(u"Staffel " + show_tits +
                                           u" zu MB-Regex hinzugefuegt.")
-
+                        
                         searchepisodes = 0
 
                         if eps:
@@ -351,8 +350,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                             se = s + "E" + e
                                             payload = search.best_result_sj(
                                                 title, configfile, dbfile)
-                                            print(u"Payload " + payload +
-                                                  u" ausgabe")
                                             if payload:
                                                 payload = decode_base64(
                                                     payload).split("|")
