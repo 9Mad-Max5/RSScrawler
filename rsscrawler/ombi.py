@@ -294,6 +294,11 @@ def ombi(configfile, dbfile, device, log_debug):
                                 mbshow_tits += mbquality
                                 mbshow_tits += '.*'
 
+                                infos = imdb_show(
+                                    imdb_id, configfile, dbfile, scraper)
+                                
+                                print(u"Info " + infos)
+
                                 if sjregex == True:
                                     if sjregexdb.retrieve_key(show_titse):
                                         sjregexdb.delete(show_titse)
@@ -350,8 +355,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                             se = s + "E" + e
                                             payload = search.best_result_sj(
                                                 title, configfile, dbfile)
-                                            print(u"Payload " + payload +
-                                                  u" Test.")
                                             if payload:
                                                 payload = decode_base64(
                                                     payload).split("|")
