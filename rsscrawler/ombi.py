@@ -229,7 +229,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                     eps.append(enr)
 
                                 elif db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
-                                    eps.append(enr)
                                     show_titse = show_tit
                                     show_tits = show_tit
                                     show_titse += se
