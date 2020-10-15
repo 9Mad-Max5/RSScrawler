@@ -248,7 +248,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                     if sjregex == True:
                                         payload = search.best_result_sj(
                                             show_tit, configfile, dbfile)
-                                        print(u"Payload test " + show_tit +
+                                        print(u"Payload test " + payload +
                                               u" test.")
                                         if not sjregexdb.retrieve_key(show_titse):
                                             sjregexdb.store_key(show_titse)
