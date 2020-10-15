@@ -9,6 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from rsscrawler import search
+from rsscrawler.web import download_show
 from rsscrawler.common import decode_base64
 from rsscrawler.common import encode_base64
 from rsscrawler.common import sanitize
@@ -250,8 +251,10 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
                                     show_titse = generate_reg_title(
                                         show_tit, se, sjquality)
+                                    show_tit_search = generate_api_title(show_tit, se)
+                                    download_show(show_tit_search)
 
-                                    if sjregex == True:
+                                    if sjregex == True: 
                                         if not sjregexdb.retrieve_key(show_titse):
                                             sjregexdb.store_key(show_titse)
                                             print(u"Episode " + show_titse +
