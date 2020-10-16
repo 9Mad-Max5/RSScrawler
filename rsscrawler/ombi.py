@@ -253,20 +253,19 @@ def ombi(configfile, dbfile, device, log_debug):
                                     show_tit_search = generate_api_title(
                                         show_tit, se)
                                     # download_show(show_tit_search)
+                                    payload = search.best_result_sj(
+                                        show_tit, configfile, dbfile)
+                                    if payload:
+                                        matches = search.download_sj(
+                                            payload, configfile, dbfile)
+                                        print(u"Success: " +
+                                              str(matches))
 
                                     if sjregex == True:
                                         if not sjregexdb.retrieve_key(show_titse):
                                             sjregexdb.store_key(show_titse)
                                             print(u"Episode " + show_titse +
                                                   u" zu Regex hinzugefuegt.")
-
-                                            payload = search.best_result_sj(
-                                                show_tit, configfile, dbfile)
-                                            if payload:
-                                                matches = search.download_sj(
-                                                    payload, configfile, dbfile)
-                                                print(u"Success: " +
-                                                      str(matches))
 
                             elif bool(episode.get("available")):
                                 enr = episode.get("episodeNumber")
@@ -306,26 +305,26 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if sjregexdb.retrieve_key(show_tits):
                                     sjregexdb.delete(show_tits)
                                     print(u"Staffel " + show_tits +
-                                          u" von SJ Regex entfernt kleiner 2.")
+                                          u" von SJ Regex entfernt.")
 
                             if mbregex == True and mbseasons == True:
                                 if mbregexdb.retrieve_key(mbshow_tits):
                                     mbregexdb.delete(mbshow_tits)
                                     print(u"Staffel " + mbshow_tits +
-                                          u" von MB Regex entfernt kleiner 2.")
+                                          u" von MB Regex entfernt.")
 
                         elif searchepisodes > 3:
                             if sjregex == True:
                                 if not sjregexdb.retrieve_key(show_tits):
                                     sjregexdb.store_key(show_tits)
                                     print(u"Staffel " + show_tits +
-                                          u" zu SJ-Regex hinzugefuegt groeser 3.")
+                                          u" zu SJ-Regex hinzugefuegt.")
 
                             if mbregex == True and mbseasons == True:
                                 if not mbregexdb.retrieve_key(mbshow_tits):
                                     mbregexdb.store_key(mbshow_tits)
                                     print(u"Staffel " + mbshow_tits +
-                                          u" zu MB-Regex hinzugefuegt groeser 3.")
+                                          u" zu MB-Regex hinzugefuegt.")
 
                         searchepisodes = 0
 
