@@ -633,6 +633,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     def download_show(title):
         global device
         if request.method == 'POST':
+            print(u"Success web anfrage!")
             payload = search.best_result_sj(title, configfile, dbfile)
             if payload:
                 matches = search.download_sj(payload, configfile, dbfile)
