@@ -252,7 +252,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                         show_tit, se, sjquality)
                                     show_tit_search = generate_api_title(
                                         show_tit, se)
-                                    download_show(show_tit_search)
                                     payload = search.best_result_sj(
                                         show_tits, configfile, dbfile)
                                     if payload:
