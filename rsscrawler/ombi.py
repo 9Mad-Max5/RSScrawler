@@ -9,7 +9,6 @@ import requests
 from bs4 import BeautifulSoup
 
 from rsscrawler import search
-from rsscrawler.web import app_container
 from rsscrawler.common import decode_base64
 from rsscrawler.common import encode_base64
 from rsscrawler.common import sanitize
@@ -251,14 +250,23 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
                                     show_titse = generate_reg_title(
                                         show_tit, se, sjquality)
-                                    show_tit_search = generate_api_title(show_tit, se)
-                                    #download_show(show_tit_search)
+                                    show_tit_search = generate_api_title(
+                                        show_tit, se)
+                                    # download_show(show_tit_search)
 
-                                    if sjregex == True: 
+                                    if sjregex == True:
                                         if not sjregexdb.retrieve_key(show_titse):
                                             sjregexdb.store_key(show_titse)
                                             print(u"Episode " + show_titse +
                                                   u" zu Regex hinzugefuegt.")
+
+                                            payload = search.best_result_sj(
+                                                show_tit, configfile, dbfile)
+                                            if payload:
+                                                matches = search.download_sj(
+                                                    payload, configfile, dbfile)
+                                                print(u"Success: " +
+                                                      str(matches))
 
                             elif bool(episode.get("available")):
                                 enr = episode.get("episodeNumber")
@@ -298,26 +306,26 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if sjregexdb.retrieve_key(show_tits):
                                     sjregexdb.delete(show_tits)
                                     print(u"Staffel " + show_tits +
-                                          u" von SJ Regex entfernt.")
+                                          u" von SJ Regex entfernt kleiner 2.")
 
                             if mbregex == True and mbseasons == True:
                                 if mbregexdb.retrieve_key(mbshow_tits):
                                     mbregexdb.delete(mbshow_tits)
                                     print(u"Staffel " + mbshow_tits +
-                                          u" von MB Regex entfernt.")
+                                          u" von MB Regex entfernt kleiner 2.")
 
                         elif searchepisodes > 3:
                             if sjregex == True:
                                 if not sjregexdb.retrieve_key(show_tits):
                                     sjregexdb.store_key(show_tits)
                                     print(u"Staffel " + show_tits +
-                                          u" zu SJ-Regex hinzugefuegt.")
+                                          u" zu SJ-Regex hinzugefuegt groeser 3.")
 
                             if mbregex == True and mbseasons == True:
                                 if not mbregexdb.retrieve_key(mbshow_tits):
                                     mbregexdb.store_key(mbshow_tits)
                                     print(u"Staffel " + mbshow_tits +
-                                          u" zu MB-Regex hinzugefuegt.")
+                                          u" zu MB-Regex hinzugefuegt groeser 3.")
 
                         searchepisodes = 0
 
