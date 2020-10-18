@@ -145,6 +145,8 @@ def ombi(configfile, dbfile, device, log_debug):
         return False
 
     scraper = False
+    
+    print(u"Vor Film.")
 
     for r in requested_movies:
         if bool(r.get("approved")):
@@ -201,6 +203,9 @@ def ombi(configfile, dbfile, device, log_debug):
                 if list.retrieve_key(str(movie_tit)):
                     list.delete(str(movie_tit))
 
+    print(u"Nach Film.")
+    
+
     for r in requested_shows:
         imdb_id = r.get("imdbId")
         show_tit = r.get("title")
@@ -217,6 +222,7 @@ def ombi(configfile, dbfile, device, log_debug):
                         sn = season.get("seasonNumber")
                         eps = []
                         episodes = season.get("episodes")
+                        
                         s = str(sn)
                         if len(s) == 1:
                             s = "0" + s
@@ -250,8 +256,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
                                     show_titse = generate_reg_title(
                                         show_tit, se, sjquality)
-                                    show_tit_search = generate_api_title(
-                                        show_tit, s)
 
                                     if sjregex == True:
                                         if not sjregexdb.retrieve_key(show_titse):
