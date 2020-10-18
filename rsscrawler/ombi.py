@@ -167,7 +167,7 @@ def ombi(configfile, dbfile, device, log_debug):
                     db.store('movie_' + str(imdb_id), 'search')
 
                 elif not db.retrieve('movie_' + str(imdb_id)) == 'search':
-                    print(u"Im elif " + imdb_id + u" durch Ombi hinzugefügt.")
+                    print(u"Im elif " + str(imdb_id) + u" durch Ombi hinzugefügt.")
                     response = imdb_movie(imdb_id, configfile, dbfile, scraper)
                     print(u"nach response")
                     title = response[0]
