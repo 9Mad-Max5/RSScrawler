@@ -150,11 +150,14 @@ def ombi(configfile, dbfile, device, log_debug):
 
     for r in requested_movies:
         if bool(r.get("approved")):
+            print(u"Approved")
             imdb_id = r.get("imdbId")
             # Title aus ombi entnehmen und sonderzeichen entfernen
             movie_tit = r.get("title")
             movie_tit = movie_tit.replace(':', '').replace(
                 ' -', '').replace(' ', '.')
+                
+            print(u"Nach Approved")
 
             if not bool(r.get("available")):
                 print(u"Nicht verfügbar.")
