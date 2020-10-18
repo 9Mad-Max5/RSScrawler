@@ -152,7 +152,7 @@ def ombi(configfile, dbfile, device, log_debug):
         if bool(r.get("approved")):
             imdb_id = r.get("imdbId")
             # Title aus ombi entnehmen und sonderzeichen entfernen
-            #movie_tit = r.get("title")
+            movie_tit = r.get("title")
             #movie_tit = movie_tit.replace(':', '').replace(
             #    ' -', '').replace(' ', '.')
 
