@@ -162,13 +162,14 @@ def ombi(configfile, dbfile, device, log_debug):
                 print(u"Nicht verfügbar.")
                 # Neue Struktur der DB
                 if db.retrieve('movie_' + str(imdb_id)) == 'added':
+                    print(u"Im if")
                     db.delete('movie_' + str(imdb_id))
                     db.store('movie_' + str(imdb_id), 'search')
 
                 elif not db.retrieve('movie_' + str(imdb_id)) == 'search':
+                    print(u"Im elif")
                     response = imdb_movie(imdb_id, configfile, dbfile, scraper)
                     title = response[0]
-                    print(u"Vor if title")
                     if title:
                         scraper = response[1]
                         best_result = search.best_result_bl(
@@ -188,6 +189,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                     best_result, device, configfile, dbfile)
                         db.store('movie_' + str(imdb_id), 'search')
                     else:
+                        print(u"Im else")
                         log_debug(
                             "Titel für IMDB-ID nicht abrufbar: " + imdb_id)
 
