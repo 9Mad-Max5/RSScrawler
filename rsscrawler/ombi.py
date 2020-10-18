@@ -252,13 +252,6 @@ def ombi(configfile, dbfile, device, log_debug):
                                         show_tit, se, sjquality)
                                     show_tit_search = generate_api_title(
                                         show_tit, s)
-                                    payload = search.best_result_sj(
-                                        show_tit_search, configfile, dbfile)
-                                    if payload:
-                                        matches = search.download_sj(
-                                            payload, configfile, dbfile)
-                                        print(u"Success: " +
-                                              str(matches))
 
                                     if sjregex == True:
                                         if not sjregexdb.retrieve_key(show_titse):
