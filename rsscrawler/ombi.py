@@ -145,7 +145,7 @@ def ombi(configfile, dbfile, device, log_debug):
         return False
 
     scraper = False
-    
+
     print(u"Vor Film.")
 
     for r in requested_movies:
@@ -157,6 +157,7 @@ def ombi(configfile, dbfile, device, log_debug):
                 ' -', '').replace(' ', '.')
 
             if not bool(r.get("available")):
+                print(u"Nicht verfügbar.")
                 # Neue Struktur der DB
                 if db.retrieve('movie_' + str(imdb_id)) == 'added':
                     db.delete('movie_' + str(imdb_id))
@@ -188,6 +189,7 @@ def ombi(configfile, dbfile, device, log_debug):
                             "Titel für IMDB-ID nicht abrufbar: " + imdb_id)
 
             elif bool(r.get("available")):
+                print(u"Bereits verfügbar.")
                 # Migration der vorhandenen von added nach available zum angleichen an die neue DB-values
                 if db.retrieve('movie_' + str(imdb_id)) == 'added':
                     db.delete('movie_' + str(imdb_id))
@@ -204,7 +206,6 @@ def ombi(configfile, dbfile, device, log_debug):
                     list.delete(str(movie_tit))
 
     print(u"Nach Film.")
-    
 
     for r in requested_shows:
         imdb_id = r.get("imdbId")
@@ -222,7 +223,7 @@ def ombi(configfile, dbfile, device, log_debug):
                         sn = season.get("seasonNumber")
                         eps = []
                         episodes = season.get("episodes")
-                        
+
                         s = str(sn)
                         if len(s) == 1:
                             s = "0" + s
