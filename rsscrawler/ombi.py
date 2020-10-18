@@ -98,7 +98,7 @@ def generate_reg_title(title, counter, quality):
 
 def generate_api_title(title, counter):
     title = title.replace(':', '').replace(' -', '').replace('!', '').replace(
-        ' ', '%20').replace("'", '').replace('(', '').replace(')', '')
+        ' ', '.').replace("'", '').replace('(', '').replace(')', '')
     title += ','
     title += counter
     return title
@@ -146,8 +146,6 @@ def ombi(configfile, dbfile, device, log_debug):
 
     scraper = False
 
-    print(u"Vor Film.")
-
     for r in requested_movies:
         if bool(r.get("approved")):
             imdb_id = r.get("imdbId")
@@ -156,20 +154,14 @@ def ombi(configfile, dbfile, device, log_debug):
             movie_tit = movie_tit.replace(':', '').replace(
                 ' -', '').replace(' ', '.')
 
-            print(u"Nach Approved")
-
             if not bool(r.get("available")):
-                print(u"Nicht verfügbar.")
                 # Neue Struktur der DB
                 if db.retrieve('movie_' + str(imdb_id)) == 'added':
-                    print(u"Im if")
                     db.delete('movie_' + str(imdb_id))
                     db.store('movie_' + str(imdb_id), 'search')
 
                 elif not db.retrieve('movie_' + str(imdb_id)) == 'search':
-                    print(u"Im elif " + str(imdb_id) + u" durch Ombi hinzugefügt.")
                     response = imdb_movie(imdb_id, configfile, dbfile, scraper)
-                    print(u"nach response")
                     title = response[0]
                     if title:
                         scraper = response[1]
@@ -190,12 +182,10 @@ def ombi(configfile, dbfile, device, log_debug):
                                     best_result, device, configfile, dbfile)
                         db.store('movie_' + str(imdb_id), 'search')
                     else:
-                        print(u"Im else")
                         log_debug(
                             "Titel für IMDB-ID nicht abrufbar: " + imdb_id)
 
             elif bool(r.get("available")):
-                print(u"Bereits verfügbar.")
                 # Migration der vorhandenen von added nach available zum angleichen an die neue DB-values
                 if db.retrieve('movie_' + str(imdb_id)) == 'added':
                     db.delete('movie_' + str(imdb_id))
@@ -210,8 +200,6 @@ def ombi(configfile, dbfile, device, log_debug):
 
                 if list.retrieve_key(str(movie_tit)):
                     list.delete(str(movie_tit))
-
-    print(u"Nach Film.")
 
     for r in requested_shows:
         imdb_id = r.get("imdbId")
@@ -229,7 +217,6 @@ def ombi(configfile, dbfile, device, log_debug):
                         sn = season.get("seasonNumber")
                         eps = []
                         episodes = season.get("episodes")
-
                         s = str(sn)
                         if len(s) == 1:
                             s = "0" + s
@@ -263,6 +250,15 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if db.retrieve('show_' + str(imdb_id) + '_' + se) == 'search':
                                     show_titse = generate_reg_title(
                                         show_tit, se, sjquality)
+                                    show_tit_search = generate_api_title(
+                                        show_tit, s)
+                                    payload = search.best_result_sj(
+                                        show_tit_search, configfile, dbfile)
+                                    if payload:
+                                        matches = search.download_sj(
+                                            payload, configfile, dbfile)
+                                        print(u"Success: " +
+                                              str(matches))
 
                                     if sjregex == True:
                                         if not sjregexdb.retrieve_key(show_titse):
