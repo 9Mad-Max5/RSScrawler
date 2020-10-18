@@ -153,8 +153,8 @@ def ombi(configfile, dbfile, device, log_debug):
             imdb_id = r.get("imdbId")
             # Title aus ombi entnehmen und sonderzeichen entfernen
             movie_tit = r.get("title")
-            #movie_tit = movie_tit.replace(':', '').replace(
-            #    ' -', '').replace(' ', '.')
+            movie_tit = movie_tit.replace(':', '').replace(
+                ' -', '').replace(' ', '.')
 
             print(u"Nach Approved")
 
@@ -168,6 +168,7 @@ def ombi(configfile, dbfile, device, log_debug):
                 elif not db.retrieve('movie_' + str(imdb_id)) == 'search':
                     response = imdb_movie(imdb_id, configfile, dbfile, scraper)
                     title = response[0]
+                    print(u"Vor if title")
                     if title:
                         scraper = response[1]
                         best_result = search.best_result_bl(
