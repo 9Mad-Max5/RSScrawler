@@ -307,11 +307,11 @@ def ombi(configfile, dbfile, device, log_debug):
                                     print(u"Staffel " + mbshow_tits +
                                           u" von MB Regex entfernt.")
 
-                            if mbstlist.retrieve_key(str(show_tit)):
-                                mbstlist.delete(str(show_tit))
+                            #if mbstlist.retrieve_key(str(show_tit)):
+                            #    mbstlist.delete(str(show_tit))
 
-                            if sjlist.retrieve_key(str(show_tit)):
-                                sjlist.delete(str(show_tit))
+                            #if sjlist.retrieve_key(str(show_tit)):
+                            #    sjlist.delete(str(show_tit))
 
                         elif searchepisodes > 3:
                             if sjregex == True:
@@ -480,11 +480,11 @@ def ombi(configfile, dbfile, device, log_debug):
                                     print(u"Staffel " + mbshow_tits +
                                           u" von MB Regex entfernt.")
 
-                            if mbstlist.retrieve_key(str(show_tit)):
-                                mbstlist.delete(str(show_tit))
+                            #if mbstlist.retrieve_key(str(show_tit)):
+                            #    mbstlist.delete(str(show_tit))
 
-                            if sjlist.retrieve_key(str(show_tit)):
-                                sjlist.delete(str(show_tit))
+                            #if sjlist.retrieve_key(str(show_tit)):
+                            #    sjlist.delete(str(show_tit))
 
                         elif searchepisodes < 2:
                             if sjregex == True:
