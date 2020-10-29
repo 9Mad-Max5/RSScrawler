@@ -227,6 +227,7 @@ def ombi(configfile, dbfile, device, log_debug):
                             show_tit, s, mbquality)
 
                         for episode in episodes:
+                            print(len(episode.get("available")))
                             if not bool(episode.get("available")):
                                 searchepisodes += 1
                                 enr = episode.get("episodeNumber")
