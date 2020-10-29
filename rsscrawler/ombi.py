@@ -207,7 +207,7 @@ def ombi(configfile, dbfile, device, log_debug):
         imdb_id = r.get("imdbId")
         show_tit = r.get("title")
         show_tit = show_tit.replace(':', '').replace(
-            ' -', '').replace('!', '').replace('(', '').replace(')', '')
+            ' -', '').replace('!', '').replace('(', '').replace(')', '').replace("'", '')
 
         infos = None
         child_requests = r.get("childRequests")
@@ -308,7 +308,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                     mbregexdb.delete(mbshow_tits)
                                     print(u"Staffel " + mbshow_tits +
                                           u" von MB Regex entfernt.")
-                                
+
                                 print(u"Serie " + show_tit)
 
                                 if mbstlist.retrieve_key(str(show_tit)):
