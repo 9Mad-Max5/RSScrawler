@@ -108,7 +108,9 @@ def ombi(configfile, dbfile, device, log_debug):
     db = RssDb(dbfile, 'Ombi')
 
     # Liste der aktive Filmsuchen
-    list = RssDb(dbfile, 'MB_Filme')
+    mbstlist = RssDb(dbfile, 'MB_Staffeln')
+    mblist = RssDb(dbfile, 'MB_Filme')
+    sjlist = RssDb(dbfile, 'SJ_Serien')
     # Regex Serien für eine bessere suche
     sjregexdb = RssDb(dbfile, 'SJ_Serien_Regex')
     mbregexdb = RssDb(dbfile, 'MB_Regex')
@@ -198,8 +200,8 @@ def ombi(configfile, dbfile, device, log_debug):
                 if not db.retrieve('movie_' + str(imdb_id)) == 'available':
                     db.store('movie_' + str(imdb_id), 'available')
 
-                if list.retrieve_key(str(movie_tit)):
-                    list.delete(str(movie_tit))
+                if mblist.retrieve_key(str(movie_tit)):
+                    mblist.delete(str(movie_tit))
 
     for r in requested_shows:
         imdb_id = r.get("imdbId")
@@ -304,6 +306,12 @@ def ombi(configfile, dbfile, device, log_debug):
                                     mbregexdb.delete(mbshow_tits)
                                     print(u"Staffel " + mbshow_tits +
                                           u" von MB Regex entfernt.")
+
+                            if mbstlist.retrieve_key(str(show_tit)):
+                                mbstlist.delete(str(show_tit))
+
+                            if sjlist.retrieve_key(str(show_tit)):
+                                sjlist.delete(str(show_tit))
 
                         elif searchepisodes > 3:
                             if sjregex == True:
@@ -413,7 +421,7 @@ def ombi(configfile, dbfile, device, log_debug):
                         sn = season.get("seasonNumber")
                         eps = []
                         episodes = season.get("episodes")
-                        
+
                         s = str(sn)
                         if len(s) == 1:
                             s = "0" + s
@@ -471,6 +479,12 @@ def ombi(configfile, dbfile, device, log_debug):
                                     mbregexdb.delete(mbshow_tits)
                                     print(u"Staffel " + mbshow_tits +
                                           u" von MB Regex entfernt.")
+
+                            if mbstlist.retrieve_key(str(show_tit)):
+                                mbstlist.delete(str(show_tit))
+
+                            if sjlist.retrieve_key(str(show_tit)):
+                                sjlist.delete(str(show_tit))
 
                         elif searchepisodes < 2:
                             if sjregex == True:
