@@ -206,6 +206,8 @@ def ombi(configfile, dbfile, device, log_debug):
     for r in requested_shows:
         imdb_id = r.get("imdbId")
         show_tit = r.get("title")
+        show_tit = show_tit.replace(':', '').replace(
+            ' -', '').replace('!', '').replace('(', '').replace(')', '')
 
         infos = None
         child_requests = r.get("childRequests")
@@ -306,12 +308,14 @@ def ombi(configfile, dbfile, device, log_debug):
                                     mbregexdb.delete(mbshow_tits)
                                     print(u"Staffel " + mbshow_tits +
                                           u" von MB Regex entfernt.")
+                                
+                                print(u"Serie " + show_tit)
 
-                            #if mbstlist.retrieve_key(str(show_tit)):
-                            #    mbstlist.delete(str(show_tit))
+                                if mbstlist.retrieve_key(str(show_tit)):
+                                    mbstlist.delete(str(show_tit))
 
-                            #if sjlist.retrieve_key(str(show_tit)):
-                            #    sjlist.delete(str(show_tit))
+                                if sjlist.retrieve_key(str(show_tit)):
+                                    sjlist.delete(str(show_tit))
 
                         elif searchepisodes > 3:
                             if sjregex == True:
@@ -480,11 +484,11 @@ def ombi(configfile, dbfile, device, log_debug):
                                     print(u"Staffel " + mbshow_tits +
                                           u" von MB Regex entfernt.")
 
-                            #if mbstlist.retrieve_key(str(show_tit)):
-                            #    mbstlist.delete(str(show_tit))
+                                if mbstlist.retrieve_key(str(show_tit)):
+                                    mbstlist.delete(str(show_tit))
 
-                            #if sjlist.retrieve_key(str(show_tit)):
-                            #    sjlist.delete(str(show_tit))
+                                if sjlist.retrieve_key(str(show_tit)):
+                                    sjlist.delete(str(show_tit))
 
                         elif searchepisodes < 2:
                             if sjregex == True:
