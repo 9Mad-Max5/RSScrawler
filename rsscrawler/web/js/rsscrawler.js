@@ -394,6 +394,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function downloadSJ(payload) {
         showInfoLong("Starte Download...");
+        showInfoLong(payload);
         $http.post('api/download_sj/' + payload)
             .then(function (res) {
                 console.log('Download gestartet!');
