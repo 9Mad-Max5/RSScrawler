@@ -112,7 +112,7 @@ def generate_api_title(title, counter):
     return title
 
 
-def ombi(configfile, dbfile, device, log_debug):
+def ombi(configfile, dbfile, device, log_debug, first_launch):
     db = RssDb(dbfile, 'Ombi')
 
     # Liste der aktive Filmsuchen
@@ -139,7 +139,7 @@ def ombi(configfile, dbfile, device, log_debug):
     api = config.get('api')
 
     if not url or not api:
-        return device
+        return [device, [0, 0]]
 
     english = RssConfig('RSScrawler', configfile).get('english')
 
@@ -150,9 +150,15 @@ def ombi(configfile, dbfile, device, log_debug):
         requested_shows = requests.get(
             url + '/api/v1/Request/tv', headers={'ApiKey': api})
         requested_shows = json.loads(requested_shows.text)
+        len_movies = len(requested_movies)
+        len_shows = len(requested_shows)
+        if first_launch:
+            log_debug("Erfolgreich mit Ombi verbunden.")
+            print(u"Erfolgreich mit Ombi verbunden.")
     except:
         log_debug("Ombi ist nicht erreichbar!")
-        return False
+        print(u"Ombi ist nicht erreichbar!")
+        return [False, [0, 0]]
 
     scraper = False
 
@@ -508,4 +514,4 @@ def ombi(configfile, dbfile, device, log_debug):
                                     mbregexdb.store_key(mbshow_tits)
                                     print(u"Staffel " + mbshow_tits +
                                           u" zu MB-Regex hinzugefuegt.")
-    return device
+    return [device, [len_movies, len_shows]]
