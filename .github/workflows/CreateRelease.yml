@@ -1,12 +1,12 @@
 name: Release Artifacts
 
-on:
-  push:
-    paths-ignore:
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/**'
-    branches:
-      - main
+# on:
+#   push:
+#     paths-ignore:
+#       - '.github/ISSUE_TEMPLATE/**'
+#       - '.github/workflows/**'
+#     branches:
+#       - main
 
 jobs:
   build_wheel:
