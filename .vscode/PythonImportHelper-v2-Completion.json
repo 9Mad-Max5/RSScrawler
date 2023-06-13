@@ -5004,7 +5004,7 @@
         "kind": 2,
         "importPath": "feedcrawler.external_sites.web_search.content_shows",
         "description": "feedcrawler.external_sites.web_search.content_shows",
-        "peekOfCode": "def get_best_result(title):\n    try:\n        shared_state.logger.debug(f'Pushed search for: {title}')\n        results = search_web(title, only_content_shows=True)\n        sj_results = results[1]\n        sf_results = results[2]\n        shared_state.logger.debug(f'Got result for: {str(results)}')\n<<<<<<< HEAD\n    except:\n        shared_state.logger.exception(\"An exception was thrown!\")",
+        "peekOfCode": "def get_best_result(title):\n    try:\n        shared_state.logger.debug(f'Pushed search for: {title}')\n        shared_state.logger.debug(f'Pushed search for: {title}')\n        results = search_web(title, only_content_shows=True)\n        sj_results = results[1]\n        sf_results = results[2]\n        shared_state.logger.debug(f'Got result for: {str(results)}')\n    except Exception as e:\n        shared_state.logger.debug(\"An exception was thrown: \" + str(e))",
         "detail": "feedcrawler.external_sites.web_search.content_shows",
         "documentation": {}
     },
