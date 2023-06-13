@@ -61,9 +61,9 @@ def send_package(self, title, link, language_id, season, episode, site, source, 
     if language_id == 2:
         englisch = '/Englisch'
     if self.filename == 'List_ContentShows_Shows':
-        release_type = '[Episode' + englisch + '] - '
+        release_type = '[Folge' + englisch + '] - '
     elif self.filename == 'List_ContentShows_Shows_Regex':
-        release_type = '[Episode/RegEx' + englisch + '] - '
+        release_type = '[Folge/RegEx' + englisch + '] - '
     elif self.filename == 'List_ContentShows_Seasons_Regex':
         release_type = '[Staffel/RegEx' + englisch + '] - '
     elif self.filename == 'List_ContentAll_Seasons':
@@ -174,7 +174,7 @@ def periodical_task(self):
         else:
             if self._SITE == "SF" and not shared_state.values["sf_blocked"]:
                 print("SF hat den Feed-Anruf während der Feed-Suche blockiert.")
-                shared_state.values["sf_blocked"] = True
+                shared_state.update("sf_blocked", True)
             else:
                 shared_state.logger.debug("Feed ist leer - breche die Suche für diesen Feed ab!")
 
